@@ -208,7 +208,7 @@ int addContext(CONTEXT_INFO cInfo) {
  * return  = 0 - ok
  */
 int removeContext(SCARDCONTEXT context) {
-  for (int freePos; freePos < MAX_CONTEXTS; freePos++)
+  for (int freePos=0; freePos < MAX_CONTEXTS; freePos++)
     if (establishedContexts[freePos].context == context) {
       clearContextInfo(&establishedContexts[freePos]);
       return 0;
@@ -225,15 +225,18 @@ int removeContext(SCARDCONTEXT context) {
  * removes all registered contexts
  */
 void removeAllContexts() {
-  for (int i; i < MAX_CONTEXTS; i++) 
+  for (int i=0; i < MAX_CONTEXTS; i++) 
 	  clearContextInfo(&establishedContexts[i]);
 
   return;
 }						/* end of removeAllContexts*/
 
 // $Log$
-// Revision 1.1  2001/11/21 01:00:10  corcoran
-// Initial revision
+// Revision 1.2  2003/06/24 17:38:05  rousseau
+// initialize two for variables to 0 (thanks to Alan Kozlay)
+//
+// Revision 1.1.1.1  2001/11/21 01:00:10  corcoran
+// OCF Bridge
 //
 // Revision 1.2  1998/04/22 20:08:31  breid
 // support for T0 implemented
