@@ -11,7 +11,7 @@
 
 #include "pcscdefines.h"
 #include "AdmHndlr.h"
-#include "usbserial.h"
+#include "usbserial_osx.h"
 #include <time.h>
 #include <unistd.h>
 
@@ -35,7 +35,7 @@ DWORD Adm_ResetICC( DWORD Lun, PUCHAR Atr, PDWORD AtrLength) {
   ucCommand[0] = 0x83; ucCommand[1] = 0x00; ucCommand[2] = 0x00;
   ucCommand[3] = 0x00; ucCommand[4] = 0x00;  ucCommand[5] = 0x00;
 
-  len = 69;
+  len = 64;
 
   rv = ControlUSB(Lun, 1, 5, ucCommand, &len, ucResponse);
   //  rv = ReadUSB(Lun, &len, ucCommand);
@@ -120,7 +120,6 @@ DWORD Adm_TransmitICC( DWORD Lun, PUCHAR pucTxBuffer, DWORD ulTxLength,
   
   ControlUSB(Lun, 0, 10, ucCommand, 
 	     0, ucResponse);
-
 
   transferType = Adm_PollStatus(Lun);
 
