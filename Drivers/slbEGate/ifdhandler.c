@@ -46,9 +46,17 @@ RESPONSECODE IFDHCreateChannel ( DWORD Lun, DWORD Channel ) {
 
 
 RESPONSECODE IFDHCloseChannel ( DWORD Lun ) {
+
+  ULONG rv;
+
+  rv = CloseUSB(Lun);
+
+  if ( rv != STATUS_SUCCESS ) {
+    return IFD_COMMUNICATION_ERROR;
+  }
+
   
-  return IFD_SUCCESS;   
-  
+  return IFD_SUCCESS;     
 }
 
 RESPONSECODE IFDHGetCapabilities ( DWORD Lun, DWORD Tag, 

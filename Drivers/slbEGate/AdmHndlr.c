@@ -28,9 +28,6 @@ DWORD Adm_ResetICC( DWORD Lun, PUCHAR Atr, PDWORD AtrLength) {
   ucCommand[3] = 0x00; ucCommand[4] = 0x00;  ucCommand[5] = 0x00;
 
   rv = ControlUSB(Lun, 0, 5, ucCommand, 0, ucResponse); 
-  //rv = WriteUSB(Lun, 5, ucCommand);
-
-  printf("Write Return  %d\n", rv == STATUS_SUCCESS);
 
   ucCommand[0] = 0x83; ucCommand[1] = 0x00; ucCommand[2] = 0x00;
   ucCommand[3] = 0x00; ucCommand[4] = 0x00;  ucCommand[5] = 0x00;
@@ -38,9 +35,6 @@ DWORD Adm_ResetICC( DWORD Lun, PUCHAR Atr, PDWORD AtrLength) {
   len = 64;
 
   rv = ControlUSB(Lun, 1, 5, ucCommand, &len, ucResponse);
-  //  rv = ReadUSB(Lun, &len, ucCommand);
-  printf("Read Return  %d\n", rv == STATUS_SUCCESS);
-
 
   if ( rv == STATUS_SUCCESS ) {
     memcpy(Atr, &ucResponse, len);
@@ -123,9 +117,7 @@ DWORD Adm_TransmitICC( DWORD Lun, PUCHAR pucTxBuffer, DWORD ulTxLength,
 
   transferType = Adm_PollStatus(Lun);
 
-  if ( (transferType == 1) && (ulTxLength > 5) ) {
-    printf("Send much data + 2 status bytes\n");
-    
+  if ( (transferType == 1) && (ulTxLength > 5) ) {    
     /* Send Data */    
     
     ucCommand[0] = 0x82; ucCommand[1] = 0x00; ucCommand[2] = 0x00;
@@ -151,13 +143,10 @@ DWORD Adm_TransmitICC( DWORD Lun, PUCHAR pucTxBuffer, DWORD ulTxLength,
     
     
   } else if ( transferType == 1 && ulTxLength == 5 ) {
-    printf("Receive much data then status bytes\n");
 
     /* Send Data */    
     numberSends   = (pucTxBuffer[4]) / USB_MAXPACKET_SIZE;
     remainingData = (pucTxBuffer[4]) % USB_MAXPACKET_SIZE;
-    
-    printf("%d packets %d remaining \n", numberSends, remainingData);
 
     ucCommand[0] = 0x81; ucCommand[1] = 0x00; ucCommand[2] = 0x00;
     ucCommand[3] = 0x00; ucCommand[4] = 0x00;
@@ -184,7 +173,6 @@ DWORD Adm_TransmitICC( DWORD Lun, PUCHAR pucTxBuffer, DWORD ulTxLength,
 
     
   } else if ( transferType == 2 ) {
-    printf("Get the status bytes only\n");
 
     ucCommand[0] = 0x81; ucCommand[1] = 0x00; ucCommand[2] = 0x00;
     ucCommand[3] = 0x00; ucCommand[4] = 0x00;

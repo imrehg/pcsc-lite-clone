@@ -21,7 +21,7 @@
 #include <pcscdefines.h>
 #include <usbserial_osx.h>
 
- #define USBDEBUG	1 
+/* #define USBDEBUG	1 */
 #define USBCONTROL_PIPE 0
 #define USBWRITE_PIPE   2
 #define USBREAD_PIPE    1
@@ -40,7 +40,6 @@ static mach_port_t 		drvMasterPort;
 static int                      iInitialized = 0;
 
 typedef struct _intFace {
-  IOUSBInterfaceInterface182  	**iface;
   IOUSBDeviceInterface182     	**dev;
   UInt32 			usbAddr;
 } intrFace, *pIntrFace;
@@ -52,14 +51,9 @@ RESPONSECODE OpenUSB( DWORD lun )
     CFMutableDictionaryRef 		USBMatch = 0;
     io_iterator_t 			iter = 0;
     io_service_t 			USBDevice = 0;
-    io_service_t        		USBIface = 0;
     kern_return_t			kr;
-    io_iterator_t       		iterB = 0;
     SInt32				score;
-    IOUSBFindInterfaceRequest 		findInterface;
     IOCFPlugInInterface 		**iodev=NULL;
-    IOCFPlugInInterface			**iodevB=NULL;
-    IOUSBDeviceInterface182 		**dev=NULL;
     HRESULT 				res;
     DWORD				rdrLun;
     long 				hpManu_id, hpProd_id;
@@ -77,7 +71,6 @@ RESPONSECODE OpenUSB( DWORD lun )
             intFace[i] = (pIntrFace)malloc(sizeof(intrFace));
             (intFace[i])->usbAddr = 0;
             (intFace[i])->dev = NULL;
-            (intFace[i])->iface = NULL;
         }
     
         iInitialized = 1;
@@ -228,12 +221,12 @@ RESPONSECODE OpenUSB( DWORD lun )
 
 RESPONSECODE WriteUSB( DWORD lun, DWORD length, unsigned char *buffer )
 {
-
+    return 0;
 }
 
 RESPONSECODE ReadUSB( DWORD lun, DWORD *length, unsigned char *buffer )
 {
-
+    return 0;
 }
 
 
@@ -244,7 +237,7 @@ RESPONSECODE ControlUSB( DWORD lun, DWORD dataDirection, DWORD txLength,
 
     IOReturn		iorv;
     DWORD		rdrLun;
-    IOUSBDevRequest     controlRequest;
+    IOUSBDevRequestTO   controlRequest;
     
 #if USBDEBUG
     int			i;
@@ -253,18 +246,18 @@ RESPONSECODE ControlUSB( DWORD lun, DWORD dataDirection, DWORD txLength,
      rdrLun = lun >> 16;
   
   if ( dataDirection == 0 ) {
-    printf("out vendor device ");
     controlRequest.bmRequestType = USBmakebmRequestType(kUSBOut, kUSBVendor, 								kUSBDevice);
     controlRequest.wLength       = txLength - 5;
     controlRequest.pData         = (void *)&txBuffer[5];
 
   } else if ( dataDirection == 1 ) {
-    printf("in vendor device ");
     controlRequest.bmRequestType = USBmakebmRequestType(kUSBIn, kUSBVendor, 								kUSBDevice);
     controlRequest.wLength       = *rxLength;
     controlRequest.pData         = (void *)rxBuffer;
 
   }   
+
+  usleep(1000);
 
 #ifdef USBDEBUG
   printf("-> [%d] ", txLength);
@@ -272,25 +265,20 @@ RESPONSECODE ControlUSB( DWORD lun, DWORD dataDirection, DWORD txLength,
     printf("%x ", txBuffer[i]);
   } printf("\n");
 #endif
-    //iorv = (*(intFace[rdrLun])->dev)->USBDeviceAbortPipeZero((intFace[rdrLun])->dev);
 
-    controlRequest.bRequest      = txBuffer[0];
-    controlRequest.wValue        = txBuffer[1]*0x100 + txBuffer[2];
-    controlRequest.wIndex        = txBuffer[3]*0x100 + txBuffer[4];
-    controlRequest.wLenDone      = 0;
-//    controlRequest.noDataTimeout = 5000000;
-//    controlRequest.completionTimeout = 5000000;
+    controlRequest.bRequest          = txBuffer[0];
+    controlRequest.wValue            = txBuffer[1]*0x100 + txBuffer[2];
+    controlRequest.wIndex            = txBuffer[3]*0x100 + txBuffer[4];
+    controlRequest.wLenDone          = 0;
+    controlRequest.noDataTimeout     = 400000;
+    controlRequest.completionTimeout = 400000;
         
     /* Write the data */
-    iorv = (*(intFace[rdrLun])->dev)->DeviceRequest((intFace[rdrLun])->dev, &controlRequest);
-
-    printf("iorv is %x\n", iorv);
+    iorv = (*(intFace[rdrLun])->dev)->DeviceRequestTO((intFace[rdrLun])->dev, &controlRequest);
     
   if ( iorv ) {
     return STATUS_UNSUCCESSFUL;
   }
-      
-printf("len done is %d\n", controlRequest.wLenDone);
 
   if ( controlRequest.wLenDone ) {
   
@@ -309,8 +297,6 @@ printf("len done is %d\n", controlRequest.wLenDone);
     }
   }
    
-                              
-printf("success\n");
   return STATUS_SUCCESS;
     
 }
@@ -318,11 +304,24 @@ printf("success\n");
 
 RESPONSECODE CloseUSB( DWORD lun )
 {
-    IOReturn iorv;
-    DWORD rdrLun;
-    
+    IOReturn                            iorv;
+    DWORD                               rdrLun;
+     
     rdrLun = lun >> 16;
 
+    iorv = (*(intFace[rdrLun])->dev)->USBDeviceClose((intFace[rdrLun])->dev);
+    if (iorv) {
+        printf("ERR: Couldn't close device (%08x)\n", (int)iorv);
+    }
+
+    (*(intFace[rdrLun])->dev)->Release((intFace[rdrLun])->dev);
+    free (intFace[rdrLun]);
+
+    mach_port_deallocate(mach_task_self(), drvMasterPort);
+    if ( iorv != kIOReturnSuccess ) {
+        return STATUS_UNSUCCESSFUL;
+    }
+    
     return STATUS_SUCCESS;
 }
  
