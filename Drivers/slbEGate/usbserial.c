@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <usblinux.h>
 
-/* #define USBDEBUG	1 */
+#define USBDEBUG	1 
 #define USBWRITE_PIPE   0x06
 #define USBREAD_PIPE    0x85
 #define USBMAX_READERS  4
@@ -55,7 +55,7 @@ RESPONSECODE WriteUSB( DWORD lun, DWORD length, unsigned char *buffer )
   int i, requesttype;
   
 #ifdef USBDEBUG
-  printf("-> ");
+  printf("-> [%d] ", length);
   for (i=0; i < length; i++ ) {
     printf("%x ", buffer[i]);
   } printf("\n");
@@ -97,7 +97,9 @@ RESPONSECODE ReadUSB( DWORD lun, DWORD *length, unsigned char *buffer )
   *length = len;
 
 #ifdef USBDEBUG
-  printf("<- ");
+  if ( len > 0 ) len += 5;
+
+  printf("<- [%d] ", len);
   for (i=0; i < len; i++ ) {
     printf("%x ", buffer[i]);
   } printf("\n");
@@ -105,6 +107,59 @@ RESPONSECODE ReadUSB( DWORD lun, DWORD *length, unsigned char *buffer )
 
   return STATUS_SUCCESS;
 }
+
+
+RESPONSECODE ControlUSB( DWORD lun, DWORD dataDirection, DWORD txLength, 
+			 PUCHAR txBuffer, DWORD *rxLength, 
+			 PUCHAR rxBuffer ) {
+
+  int rv, len, i;
+  int requesttype;
+
+#ifdef USBDEBUG
+  printf("-> [%d] ", txLength);
+  for (i=0; i < txLength; i++ ) {
+    printf("%x ", txBuffer[i]);
+  } printf("\n");
+#endif  
+
+
+
+  if ( dataDirection == 0 ) {
+    requesttype = USB_RECIP_DEVICE|USB_TYPE_VENDOR|USB_DIR_OUT;
+    len = txLength-5;
+  } else if ( dataDirection == 1 ) {
+    len = *rxLength;
+    requesttype = USB_RECIP_DEVICE|USB_TYPE_VENDOR|USB_DIR_IN;
+  }
+
+  rv = control_linux_usb_dev( usbDevice, requesttype,
+			      txBuffer[0], txBuffer[1]*0x100+txBuffer[2],
+			      txBuffer[3]*0x100 + txBuffer[4], &txBuffer[5],
+			      &len, 100000 );
+
+  if ( rv < 0 ) {
+    return STATUS_UNSUCCESSFUL;
+  }
+
+  if ( rxLength ) {
+
+    *rxLength = len;
+    
+    memcpy(rxBuffer, &txBuffer[5], len);
+    
+#ifdef USBDEBUG
+    printf("<- [%d] ", len);
+    for (i=0; i < len; i++ ) {
+      printf("%x ", rxBuffer[i]);
+    } printf("\n");
+#endif  
+  }
+
+  return STATUS_SUCCESS;
+
+}
+
 
 RESPONSECODE CloseUSB( DWORD lun )
 {

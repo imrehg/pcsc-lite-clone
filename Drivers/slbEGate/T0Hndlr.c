@@ -31,6 +31,13 @@ DWORD T0_ExchangeData( DWORD ulSlot, PUCHAR pRequest, DWORD RequestLen,
   unsigned char cmd[MAX_BUFFER_SIZE];
   unsigned char *rspSpot;
 
+
+
+  rv = Adm_TransmitICC( ulSlot, pRequest, RequestLen, 
+			pReply, pReplyLen );
+
+     return rv;
+
   /* Adm_SetWWT(ADM_DEFAULT_WWT); */
 
   /* Determine the type of APDU to be sent */
