@@ -27,4 +27,5 @@
 #ALL Mail -s '%{sVv}' icu4j-commits@oss.software.ibm.com
 #
 #ALL Mail -s `whoami`': %{sVv}' pcsclite-cvs-commit@lists.alioth.debian.org
-ALL $CVSROOT/CVSROOT/syncmail -u %{sVv} pcsclite-cvs-commit@lists.alioth.debian.org
+#ALL $CVSROOT/CVSROOT/syncmail -u %{sVv} pcsclite-cvs-commit@lists.alioth.debian.org
+ALL $CVSROOT/CVSROOT/cvs-mailcommit --from ludovic.rousseau@free.fr --mailto pcsclite-cvs-commit@lists.alioth.debian.org --cvs %{sVv} --diff --full
