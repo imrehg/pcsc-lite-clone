@@ -26,4 +26,4 @@
 #DEFAULT (echo ""; id; echo %{sVv}; date; cat) >> $CVSROOT/CVSROOT/commitlog
 #ALL Mail -s '%{sVv}' icu4j-commits@oss.software.ibm.com
 #pouet
-ALL Mail -s `whoami`': %{sVv}' rousseau@debian.org
+ALL Mail -s `whoami`': %{sVv}' pcsclite-cvs-commit@lists.alioth.debian.org
