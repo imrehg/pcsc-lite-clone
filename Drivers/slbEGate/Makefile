@@ -13,4 +13,4 @@ all:
 
 
 clean:
-	rm *.o
+	rm *.o testgate slbEGate

@@ -73,16 +73,16 @@ UCHAR Adm_PollStatus( DWORD Lun ) {
 	     &ulRecvLength, ucResponse);
 
 
-  if ( ucResponse[0] == 0x10 ) {
+  if ( ucResponse[0] & 0x10 ) {
     transferType = 1;
     break;
-  } else if ( ucResponse[0] == 0x20 ) {
+  } else if ( ucResponse[0] & 0x20 ) {
     transferType = 2;
     break;
-  } else if ( ucResponse[0] == 0x40 ) {
+  } else if ( ucResponse[0] & 0x40 ) {
     usleep(5000);
     continue;
-  } else if ( ucResponse[0] == 0x80 ) {
+  } else if ( ucResponse[0] & 0x80 ) {
     return -1;
   } else {
     return -1;
