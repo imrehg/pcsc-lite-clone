@@ -29,4 +29,3 @@
 #ALL Mail -s `whoami`': %{sVv}' pcsclite-cvs-commit@lists.alioth.debian.org
 #ALL $CVSROOT/CVSROOT/syncmail -u %{sVv} pcsclite-cvs-commit@lists.alioth.debian.org
 ALL $CVSROOT/CVSROOT/cvs-mailcommit --from ludovic.rousseau@free.fr --mailto pcsclite-cvs-commit@lists.alioth.debian.org --root %r --dir %p --diff --full %1{sVv}
-# pouet
