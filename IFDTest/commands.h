@@ -88,7 +88,7 @@ extern DWORD dwSendLength, dwRecvLength, dwPref, dwReaders;
 extern LPSTR pcReaders, mszReaders;
 extern BYTE pbAtr[MAX_ATR_SIZE];
 extern BYTE s[300], r[300];
-extern LPCSTR mszGroups;
+extern LPCTSTR mszGroups;
 extern LONG rv;
 extern DWORD state;
 extern DWORD protocol;

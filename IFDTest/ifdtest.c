@@ -27,7 +27,7 @@ DWORD dwSendLength, dwRecvLength, dwPref, dwReaders;
 LPSTR pcReaders, mszReaders;
 BYTE pbAtr[MAX_ATR_SIZE];
 BYTE s[300], r[300];
-LPCSTR mszGroups;
+LPCTSTR mszGroups;
 LONG rv;
 DWORD state;
 DWORD protocol;
