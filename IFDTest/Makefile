@@ -3,7 +3,7 @@
 
 CC      = gcc
 CFLAGS  = -g -w
-INCLUDE = -I/usr/local/include -I.
+INCLUDE = `pkg-config --cflags libpcsclite` -I.
 LIBS    = -L/usr/local/lib -lpcsclite -lpthread
 OBJS = testIBM.o testAMMI.o testSCHL.o testSIEMENS.o testBULL.o testGD.o commands.o testA.o testB.o
 
