@@ -28,7 +28,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SC
  * Method:    SCardEstablishContext
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardEstablishContext
+JNIEXPORT jlong JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardEstablishContext
   (JNIEnv *, jobject, jint);
 
 /*
@@ -37,15 +37,15 @@ JNIEXPORT jint JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardEstab
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardReleaseContext
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_ibm_opencard_terminal_pcsc10_OCFPCSC1
  * Method:    SCardConnect
  * Signature: (ILjava/lang/String;IILjava/lang/Integer;)I
  */
-JNIEXPORT jint JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardConnect
-  (JNIEnv *, jobject, jint, jstring, jint, jint, jobject);
+JNIEXPORT jlong JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardConnect
+  (JNIEnv *, jobject, jlong, jstring, jint, jint, jobject);
 
 /*
  * Class:     com_ibm_opencard_terminal_pcsc10_OCFPCSC1
@@ -53,7 +53,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardConne
  * Signature: (IIIILjava/lang/Integer;)V
  */
 JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardReconnect
-  (JNIEnv *, jobject, jint, jint, jint, jint, jobject);
+  (JNIEnv *, jobject, jlong, jint, jint, jint, jobject);
 
 /*
  * Class:     com_ibm_opencard_terminal_pcsc10_OCFPCSC1
@@ -61,7 +61,7 @@ JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardRecon
  * Signature: (II)V
  */
 JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardDisconnect
-  (JNIEnv *, jobject, jint, jint);
+  (JNIEnv *, jobject, jlong, jint);
 
 /*
  * Class:     com_ibm_opencard_terminal_pcsc10_OCFPCSC1
@@ -69,7 +69,7 @@ JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardDisco
  * Signature: (II[Lcom/ibm/opencard/terminal/pcsc10/PcscReaderState;)V
  */
 JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardGetStatusChange
-  (JNIEnv *, jobject, jint, jint, jobjectArray);
+  (JNIEnv *, jobject, jlong, jint, jobjectArray);
 
 /*
  * Class:     com_ibm_opencard_terminal_pcsc10_OCFPCSC1
@@ -77,7 +77,7 @@ JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardGetSt
  * Signature: (II)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardGetAttrib
-  (JNIEnv *, jobject, jint, jint);
+  (JNIEnv *, jobject, jlong, jint);
 
 /*
  * Class:     com_ibm_opencard_terminal_pcsc10_OCFPCSC1
@@ -85,7 +85,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCar
  * Signature: (II[B)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardControl
-  (JNIEnv *, jobject, jint, jint, jbyteArray);
+  (JNIEnv *, jobject, jlong, jint, jbyteArray);
 
 /*
  * Class:     com_ibm_opencard_terminal_pcsc10_OCFPCSC1
@@ -93,7 +93,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCar
  * Signature: (I[B)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardTransmit
-  (JNIEnv *, jobject, jint, jbyteArray);
+  (JNIEnv *, jobject, jlong, jbyteArray);
 
 #ifdef __cplusplus
 }

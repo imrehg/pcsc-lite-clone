@@ -71,7 +71,7 @@ JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_initTrace
  * Method:    SCardEstablishContext
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardEstablishContext
+JNIEXPORT jlong JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardEstablishContext
   (JNIEnv *env, jobject obj, jint scope) {
 
   CONTEXT_INFO cInfo;
@@ -92,7 +92,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardEstab
    */
   addContext(cInfo);
 
-  return (jint)cInfo.context;
+  return cInfo.context;
 }
 
 
@@ -102,11 +102,11 @@ JNIEXPORT jint JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardEstab
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardReleaseContext
-  (JNIEnv *env, jobject obj, jint context) {
+  (JNIEnv *env, jobject obj, jlong context) {
 
   long returnCode;
 
-  if (isContextAvailable((long)context) < 0) {
+  if (isContextAvailable(context) < 0) {
 	  throwPcscException(env, obj, "SCardReleaseContext", "tried to release a non-existing context",0);
   	return;
   }
@@ -114,7 +114,7 @@ JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardRelea
   /* delete the context from the internal table */
   removeContext(context);
 
-  returnCode = SCardReleaseContext((SCARDCONTEXT)context);
+  returnCode = SCardReleaseContext(context);
   if (returnCode != SCARD_S_SUCCESS) {
   	throwPcscException(env, obj, "SCardReleaseContext", "PC/SC Error SCardReleaseContext", returnCode);
 	  return;
@@ -128,25 +128,25 @@ JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardRelea
  * Method:    SCardConnect
  * Signature: (ILjava/lang/String;IILjava/lang/Integer;)I
  */
-JNIEXPORT jint JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardConnect
-  (JNIEnv *env, jobject obj, jint context, jstring jReader,
+JNIEXPORT jlong JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardConnect
+  (JNIEnv *env, jobject obj, jlong context, jstring jReader,
    jint jShareMode, jint jPreferredProtocol, jobject jActiveProtocol) {
 
   const char   *readerUTF;
   long	       cardHandle;
   DWORD        activeProtocol;
-  int		       cPos;
+  int	       cPos;
   long	       returnCode;
   CONTEXT_INFO cInfo;
 
   /* check if context exists */
-  if (cPos = isContextAvailable((long)context) < 0) {
+  if ((cPos = isContextAvailable(context)) < 0) {
     throwPcscException(env, obj, "SCardConnect", "PC/SC Wrapper Error: context not in table", 0);
     return 0;
   }
 
   // get contextInformationRecord
-  cInfo = getContextInfoViaContext((SCARDCONTEXT)context);
+  cInfo = getContextInfoViaContext(context);
   if (cInfo.context == 0) {
     throwPcscException(env, obj, "SCardConnect", "PC/SC Wrapper Error: couldn't get context information record", 0);
     return 0;
@@ -156,12 +156,12 @@ JNIEXPORT jint JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardConne
   readerUTF = env->GetStringUTFChars(jReader, NULL);
 
   /* get a connection to the card */
-  returnCode = SCardConnect(  (SCARDCONTEXT)context,
-                        			readerUTF,
-				                      (DWORD)jShareMode,
-				                      (DWORD)jPreferredProtocol,
-				                      (LPSCARDHANDLE)&cardHandle,
-				                      (DWORD *)&activeProtocol);
+  returnCode = SCardConnect(context,
+                            readerUTF,
+			    (DWORD)jShareMode,
+			    (DWORD)jPreferredProtocol,
+			    (LPSCARDHANDLE)&cardHandle,
+			    (DWORD *)&activeProtocol);
 
   /* release the readers friendly name */
   env->ReleaseStringUTFChars(jReader, readerUTF);
@@ -191,7 +191,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardConne
  * Signature: (IIIILjava/lang/Integer;)V
  */
 JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardReconnect
-  (JNIEnv *env, jobject obj, jint card, jint shareMode,
+  (JNIEnv *env, jobject obj, jlong card, jint shareMode,
    jint preferredProtocols, jint initialization, jobject jActiveProtocoll) {
 
   long	        returnCode;
@@ -199,7 +199,7 @@ JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardRecon
   CONTEXT_INFO  cInfo;
 
   // get the existing context informations
-  cInfo = getContextInfoViaCardHandle((SCARDHANDLE)card);
+  cInfo = getContextInfoViaCardHandle(card);
   if (cInfo.context == 0) {
     throwPcscException(env, obj, "SCardReconnect", "PC/SC Wrapper Error: couldn't get context information record", 0);
     return;
@@ -237,19 +237,19 @@ JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardRecon
  * Signature: (II)V
  */
 JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardDisconnect
-  (JNIEnv *env, jobject obj, jint card, jint disposition) {
+  (JNIEnv *env, jobject obj, jlong card, jint disposition) {
 
   long          returnCode;
   CONTEXT_INFO  cInfo;
 
   // get the contextInfo from the table
-  cInfo = getContextInfoViaCardHandle((SCARDHANDLE)card);
+  cInfo = getContextInfoViaCardHandle(card);
   if (cInfo.context == 0) {
     throwPcscException(env, obj, "SCardDisconnect", "PC/SC Wrapper Error: couldn't get context information record", 0);
     return;
   }
 
-  returnCode = SCardDisconnect((SCARDHANDLE)card, (DWORD)disposition);
+  returnCode = SCardDisconnect(card, (DWORD)disposition);
   if ((returnCode != SCARD_S_SUCCESS) && (returnCode != SCARD_W_REMOVED_CARD)) {
     throwPcscException(env, obj, "SCardDisconnect", "PC/SC Error SCardDisconnect", returnCode);
     return;
@@ -274,7 +274,7 @@ JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardDisco
  * Signature: (II[Lcom/ibm/opencard/terminal/pcsc10/PcscReaderState;)V
  */
 JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardGetStatusChange
-  (JNIEnv *env, jobject obj, jint context, jint timeout, jobjectArray jReaderState) {
+  (JNIEnv *env, jobject obj, jlong context, jint timeout, jobjectArray jReaderState) {
 
   SCARD_READERSTATE   *readerState;
   int         numReaderState;
@@ -343,7 +343,7 @@ JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardGetSt
 
   /* set the response timeout to 1000ms */
 
-  returnCode =  SCardGetStatusChange((SCARDCONTEXT)context, 1000, readerState, numReaderState);
+  returnCode =  SCardGetStatusChange(context, 1000, readerState, numReaderState);
   if (returnCode != SCARD_S_SUCCESS) {
     free(readerState);
     throwPcscException(env, obj, "SCardGetStatusChange", "error executing SCardGetStatusChange", returnCode);
@@ -419,7 +419,7 @@ JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardGetSt
  * Signature: (II)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardGetAttrib
-  (JNIEnv *env, jobject obj, jint card, jint attrId) {
+  (JNIEnv *env, jobject obj, jlong card, jint attrId) {
 
   long	returnCode;
   DWORD       lenAttr;
@@ -465,7 +465,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCar
  * Signature: (II[B)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardControl
-  (JNIEnv *env, jobject obj, jint jCardHandle, jint jControlCode, jbyteArray jInBuffer) {
+  (JNIEnv *env, jobject obj, jlong jCardHandle, jint jControlCode, jbyteArray jInBuffer) {
 
   LONG    returnCode;
   DWORD   lenInBuffer;
@@ -584,7 +584,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SC
   int ii;
   int jj;
   int numNames;
-  for (ii=0, numNames=0; ii<lenReaderList; ) {
+  for (ii=0, numNames=0; ii<(signed)lenReaderList; ) {
     numNames++;
     ii += strlen(&readerList[ii])+1;
     if (strlen(&readerList[ii]) == 0) 
@@ -641,7 +641,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SC
  * Signature: (I[B)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardTransmit
-  (JNIEnv *env, jobject obj, jint jCard, jbyteArray jSendBuf) {
+  (JNIEnv *env, jobject obj, jlong jCard, jbyteArray jSendBuf) {
 
   SCARD_IO_REQUEST    sendPci;
   SCARD_IO_REQUEST    recvPci;
@@ -658,7 +658,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCar
   CONTEXT_INFO        cInfo;
 
   // get the contextInfo from the table (checks the active protocol of the card connection)
-  cInfo = getContextInfoViaCardHandle((SCARDHANDLE)jCard);
+  cInfo = getContextInfoViaCardHandle(jCard);
   if (cInfo.context == 0) {
     throwPcscException(env, obj, "SCardTransmit", "PC/SC Wrapper Error: couldn't get context information record", 0);
     return NULL;
@@ -705,9 +705,9 @@ JNIEXPORT jbyteArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCar
   lenRecvBuf = sizeof(tmpRecvBuf);
 
   /* transmit the data */
-  returnCode = SCardTransmit((SCARDHANDLE)jCard,
-			                       (LPSCARD_IO_REQUEST)&sendPci,(LPCBYTE)ptrSendBuf, lenSendBuf,
-                    			   (LPSCARD_IO_REQUEST)&recvPci,(LPBYTE)tmpRecvBuf,&lenRecvBuf);
+  returnCode = SCardTransmit(jCard,
+			     (LPSCARD_IO_REQUEST)&sendPci,(LPCBYTE)ptrSendBuf, lenSendBuf,
+                             (LPSCARD_IO_REQUEST)&recvPci,(LPBYTE)tmpRecvBuf,&lenRecvBuf);
 
   if (returnCode != SCARD_S_SUCCESS) {
     throwPcscException(env, obj, "SCardTransmit", "error occurred with SCardTransmit", returnCode);

@@ -77,7 +77,7 @@ int throwPcscException(JNIEnv *env, jobject obj,
     /* allocate enough bufferspace for the complete exception message */
     completeMsg = (char *)malloc(strlen(method) + strlen(msg) + 50);
     sprintf(completeMsg, "PCSC Exception in method %s: %s\n" \
-	    "return code = %8.8x\n", method, msg,returnCode);
+	    "return code = %8.8lx\n", method, msg,returnCode);
 
     if ((exceptionMsg = env->NewStringUTF(completeMsg)) == NULL) {
 	free(completeMsg);

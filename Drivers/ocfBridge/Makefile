@@ -1,12 +1,12 @@
 CC        = c++
 LD        = ld 
 OBJS     := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
-JDK_HOME  = /System/Library/Frameworks/JavaVM.framework
-PCSC_HDRS = -I/usr/local/pcsc/include
-PCSC_LIBS = -L/usr/local/pcsc/lib -lpcsclite
-INCLUDE   = -I$(JDK_HOME)/Headers -I$(JDK_HOME)/include/genunix $(PCSC_HDRS)
-LIBNAME   = libOCFPCSC1.jnilib
-PREFIX   = /usr/local/pcsc
+#JDK_HOME  = /usr/local/java
+PCSC_HDRS = `pkg-config --cflags libpcsclite`
+PCSC_LIBS = `pkg-config --libs libpcsclite`
+INCLUDE   = -I$(JDK_HOME)/include -I$(JDK_HOME)/include/linux $(PCSC_HDRS)
+LIBNAME   = libOCFPCSC1.so
+CPPFLAGS  = -fPIC -Wall -DHAVE_PTHREAD_H -DCK_GENERIC $(INCLUDE)
 
 all: $(LIBNAME)
 
@@ -17,7 +17,4 @@ install:
 	cp -f *.so /usr/local/pcsc/lib
 
 $(LIBNAME): $(OBJS)
-	cc $(OBJS) $(PCSC_LIBS) -dynamiclib -install_name $(PREFIX)/lib/$(LIBNAME)  -o $@
-
-$(patsubst %.cpp,%.o,$(wildcard *.cpp)) : %.o : %.cpp
-	$(CC) $(CFLAGS) -c $< $(INCLUDE) $(DEFS)
+	$(CC) $(OBJS) $(PCSC_LIBS) -shared -o $@
