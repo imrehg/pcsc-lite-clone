@@ -721,6 +721,16 @@ JNIEXPORT jbyteArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCar
   return jRecvBuf;
 }
 
+/*
+ * Class:     com_ibm_opencard_terminal_pcsc10_OCFPCSC1
+ * Method:    reset
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_reset
+  (JNIEnv *env, jobject obj) {
+    removeAllContexts();
+    SCardUnload();
+}
 
 
 

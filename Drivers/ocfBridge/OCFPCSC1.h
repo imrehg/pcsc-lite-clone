@@ -95,6 +95,14 @@ JNIEXPORT jbyteArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCar
 JNIEXPORT jbyteArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardTransmit
   (JNIEnv *, jobject, jlong, jbyteArray);
 
+/*
+ * Class:     com_ibm_opencard_terminal_pcsc10_OCFPCSC1
+ * Method:    reset
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_reset
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif
