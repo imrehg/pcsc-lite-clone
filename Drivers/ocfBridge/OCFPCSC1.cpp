@@ -205,13 +205,11 @@ JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCardRecon
     return;
   }
 
-  /*
   returnCode = SCardReconnect((SCARDHANDLE)card,
 		                        	(DWORD)shareMode,
 			                        (DWORD)preferredProtocols,
                         			(DWORD)initialization,
 			                        (LPDWORD)&activeProtocol);
-  */
 
   if (returnCode != SCARD_S_SUCCESS) {
     throwPcscException(env, obj, "SCardReconnect", "PC/SC Error SCardReconnect", returnCode);
