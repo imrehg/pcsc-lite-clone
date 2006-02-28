@@ -11,7 +11,6 @@ AM_INIT_AUTOMAKE
 
 dnl Options
 AM_MAINTAINER_MODE
-AC_CONFIG_MACRO_DIR(m4)
 
 dnl check programs
 AC_PROG_CC
