@@ -15,11 +15,17 @@ libmusclecard_la_SOURCES = \
 	musclecard.c \
 	tokenfactory.c \
 	tokenparser.l \
+	dyn_generic.h \
 	dyn_hpux.c \
 	dyn_macosx.c \
 	dyn_unix.c \
+	misc.h \
+	parser.h \
 	strlcpy.c \
+	strlcpycat.h \
 	strlcat.c \
+	sys_generic.h \
+	thread_generic.h \
 	thread_unix.c
 libmusclecard_la_CFLAGS = \
 	$(PCSCLITE_CFLAGS) \
