@@ -14,25 +14,24 @@ noinst_HEADERS = \
 libmusclecard_la_SOURCES = \
 	musclecard.c \
 	tokenfactory.c \
-	$(top_srcdir)/src/tokenparser.l \
-	$(top_srcdir)/src/dyn_hpux.c \
-	$(top_srcdir)/src/dyn_macosx.c \
-	$(top_srcdir)/src/dyn_unix.c \
-	$(top_srcdir)/src/strlcpy.c \
-	$(top_srcdir)/src/strlcat.c \
-	$(top_srcdir)/src/thread_unix.c
+	tokenparser.l \
+	dyn_hpux.c \
+	dyn_macosx.c \
+	dyn_unix.c \
+	strlcpy.c \
+	strlcat.c \
+	thread_unix.c
 libmusclecard_la_CFLAGS = \
-	-I$(top_srcdir)/src/PCSC -I$(top_builddir)/src/PCSC \
+	$(PCSCLITE_CFLAGS) \
 	-I$(top_srcdir)/libmusclecard/src/PCSC \
 	$(SYMBOL_VISIBILITY)
-libmusclecard_la_LIBADD = \
-	$(top_builddir)/src/libpcsclite.la
+libmusclecard_la_LIBADD = $(PCSCLITE_LIBS)
 
 muscletest_SOURCES = \
 	muscletest.c \
-	$(top_srcdir)/src/strlcpy.c
+	strlcpy.c
 muscletest_CFLAGS = \
-	-I$(top_srcdir)/src/PCSC -I$(top_builddir)/src/PCSC \
+	$(PCSCLITE_CFLAGS) \
 	-I$(top_srcdir)/libmusclecard/src/PCSC
 muscletest_LDADD = \
 	libmusclecard.la
