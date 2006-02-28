@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -v
+[ -e Makefile ] && make distclean
+
+# use with --force when autoconf/automake/libtool change
+rm -rf *.cache *.m4 build/{config.guess,config.sub,depcomp,ltmain.sh} config.log config.status
+(cat m4/*.m4 > acinclude.m4)
+autoreconf --verbose --install $@
