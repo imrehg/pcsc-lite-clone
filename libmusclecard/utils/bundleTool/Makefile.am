@@ -5,10 +5,8 @@ man_MANS = bundleTool.8
 
 bundleTool_SOURCES = \
 	bundleTool.c
-bundleTool_CFLAGS = \
-	-I$(top_srcdir)/src/PCSC -I$(top_builddir)/src/PCSC
-bundleTool_LDADD = \
-	$(top_builddir)/src/libpcsclite.la
+bundleTool_CFLAGS = $(PCSCLITE_CFLAGS)
+bundleTool_LDADD = $(PCSCLITE_LIBS)
 
 man_in = bundleTool.8.in
 EXTRA_DIST = $(man_in)
