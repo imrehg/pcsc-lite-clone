@@ -76,6 +76,9 @@ ACX_PTHREAD(
 
 CC="$PTHREAD_CC"
 
+AC_SUBST(LIBDL)
+AC_CHECK_LIB(dl, dlopen, [LIBDL="$LIBDL -ldl" ac_cv_func_dlopen_ldl=yes], ac_cv_+++func_dlopen_ldl=no)
+
 dnl syslog
 AC_CHECK_FUNC(syslog, AC_DEFINE(HAVE_SYSLOG_H, 1, [have syslog]))
 
