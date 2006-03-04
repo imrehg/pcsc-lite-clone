@@ -31,7 +31,7 @@ libmusclecard_la_CFLAGS = \
 	$(PCSCLITE_CFLAGS) \
 	-I$(top_srcdir)/src/PCSC \
 	$(SYMBOL_VISIBILITY)
-libmusclecard_la_LIBADD = $(PCSCLITE_LIBS)
+libmusclecard_la_LIBADD = $(PCSCLITE_LIBS) $(LIBDL)
 
 muscletest_SOURCES = \
 	muscletest.c \
