@@ -29,9 +29,11 @@ libmusclecard_la_SOURCES = \
 	thread_unix.c
 libmusclecard_la_CFLAGS = \
 	$(PCSCLITE_CFLAGS) \
+	$(PTHREAD_CFLAGS) \
 	-I$(top_srcdir)/src/PCSC \
 	$(SYMBOL_VISIBILITY)
-libmusclecard_la_LIBADD = $(PCSCLITE_LIBS) $(LIBDL)
+libmusclecard_la_LIBADD = $(PCSCLITE_LIBS) $(LIBDL) \
+	$(PTHREAD_CFLAGS) $(PTHREAD_LIBS)
 
 muscletest_SOURCES = \
 	muscletest.c \
