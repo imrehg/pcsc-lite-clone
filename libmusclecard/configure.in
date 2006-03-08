@@ -96,8 +96,8 @@ dnl Use 'uname' output as an architecture define
 uname=`uname`
 case "$uname" in
 Darwin)
-        uname=MacOS
-        ;;
+	uname=MacOS
+	;;
 esac
 AC_DEFINE_UNQUOTED(MSC_ARCH, "$uname", [MuscleCard target architecture])
 
