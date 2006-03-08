@@ -98,6 +98,9 @@ case "$uname" in
 Darwin)
 	uname=MacOS
 	;;
+SunOS)
+	uname=Solaris
+	;;
 esac
 AC_DEFINE_UNQUOTED(MSC_ARCH, "$uname", [MuscleCard target architecture])
 
