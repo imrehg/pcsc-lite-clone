@@ -6,9 +6,6 @@
  * Copyright (C) 2001-2002
  *  David Corcoran <corcoran@linuxnet.com>
  *
- * You may not remove this header from this file
- * without prior permission from the author.
- *
  * $Id$
  */
 

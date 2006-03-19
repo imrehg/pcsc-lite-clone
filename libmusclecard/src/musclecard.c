@@ -7,9 +7,6 @@
  *  David Corcoran <corcoran@linuxnet.com>
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * You may not remove this header from this file without 
- * prior permission from the author.
- *
  * $Id$
  */
 
