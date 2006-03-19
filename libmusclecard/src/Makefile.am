@@ -1,7 +1,7 @@
 # Process this file with automake to create Makefile.in.
 
 lib_LTLIBRARIES = libmusclecard.la
-libmusclecard_la_LDFLAGS = -version-info 1:0:0
+libmusclecard_la_LDFLAGS = -version-info 1:0:0 -Wl,-Bsymbolic
 
 noinst_PROGRAMS = muscletest
 
