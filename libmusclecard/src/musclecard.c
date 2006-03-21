@@ -17,7 +17,7 @@
 
 #include "misc.h"
 #include <winscard.h>
-#include <debuglog.h>
+#include "debug.h"
 
 #include "musclecard.h"
 #include "tokenfactory.h"

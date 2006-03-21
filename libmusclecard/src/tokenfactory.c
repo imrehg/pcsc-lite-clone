@@ -21,7 +21,7 @@
 #endif
 
 #include "misc.h"
-#include <debuglog.h>
+#include "debug.h"
 #include <parser.h>
 #include <dyn_generic.h>
 
