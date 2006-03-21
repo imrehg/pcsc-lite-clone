@@ -9,9 +9,11 @@ nobase_include_HEADERS = \
 	PCSC/mscdefines.h \
 	PCSC/musclecard.h
 noinst_HEADERS = \
+	debug.h \
 	tokenfactory.h
 
 libmusclecard_la_SOURCES = \
+	debug.c \
 	musclecard.c \
 	tokenfactory.c \
 	tokenparser.l \
