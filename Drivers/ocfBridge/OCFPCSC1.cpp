@@ -729,7 +729,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_SCar
 JNIEXPORT void JNICALL Java_com_ibm_opencard_terminal_pcsc10_OCFPCSC1_reset
   (JNIEnv *env, jobject obj) {
     removeAllContexts();
-    SCardUnload();
 }
 
 
