@@ -1,6 +1,10 @@
 History
 =======
 
+1.3.3: 2 May 2006, Ludovic Rousseau
+    - do not use log_msg() and log_xxd() from libpcsclite since they are
+	not exported anymore in pcsc-lite 1.3.1
+
 1.3.2: 19 March 2006, Ludovic Rousseau
     - Add support of Solaris
     - do not use pkg-config variable to know where to find the bundles
