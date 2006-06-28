@@ -42,7 +42,7 @@ static ULONG blockingContext = MSC_BLOCKSTATUS_RESUME;
 static SCARDCONTEXT localHContext = 0;
 
 /*
- * internal function 
+ * internal function
  */
 MSC_RV pcscToMSC(MSCLong32);
 MSC_RV MSCReEstablishConnection(MSCLPTokenConnection);
@@ -125,7 +125,7 @@ MSC_RV MSCListTokens(MSCULong32 listScope, MSCLPTokenInfo tokenArray,
 	mscUnLockThread();
 
 	/*
-	 * Get the reader list size 
+	 * Get the reader list size
 	 */
 	rv = SCardListReaders(localHContext, NULL, readerList, &readerLength);
 
@@ -140,7 +140,7 @@ MSC_RV MSCListTokens(MSCULong32 listScope, MSCLPTokenInfo tokenArray,
 	rv = SCardListReaders(localHContext, NULL, readerList, &readerLength);
 
 	/*
-	 * Now that we have the readers, lets check their status 
+	 * Now that we have the readers, lets check their status
 	 */
 	for (i = 0; i < readerLength - 1; i++)
 	{
@@ -158,7 +158,7 @@ MSC_RV MSCListTokens(MSCULong32 listScope, MSCLPTokenInfo tokenArray,
 		}
 
 		/*
-		 * We only care about slots with a token unless stated 
+		 * We only care about slots with a token unless stated
 		 */
 		if ((rgReaderStates.dwEventState & SCARD_STATE_PRESENT) ||
 			(listScope == MSC_LIST_SLOTS))
@@ -167,21 +167,21 @@ MSC_RV MSCListTokens(MSCULong32 listScope, MSCLPTokenInfo tokenArray,
 			if (rgReaderStates.dwEventState & SCARD_STATE_PRESENT)
 			{
 				/*
-				 * We only care about supported tokens 
+				 * We only care about supported tokens
 				 */
 				rv = TPSearchBundlesForAtr(rgReaderStates.rgbAtr,
 					rgReaderStates.cbAtr, &tokenInfo);
 			}
 
 			/*
-			 * Success for this function 
+			 * Success for this function
 			 */
 			if ((rv == 0) || (listScope == MSC_LIST_SLOTS) ||
 				(listScope == MSC_LIST_ALL))
 			{
 
 				/*
-				 * We found something interesting to the application 
+				 * We found something interesting to the application
 				 */
 				tokensFound += 1;
 
@@ -245,11 +245,11 @@ MSC_RV MSCListTokens(MSCULong32 listScope, MSCLPTokenInfo tokenArray,
 				}
 			}
 			/*
-			 * End of TPSearch success 
+			 * End of TPSearch success
 			 */
 		}
 		/*
-		 * End of if token present 
+		 * End of if token present
 		 */
 		while (readerList[++i] != 0);
 	}	/* End of for .. readers */
@@ -258,7 +258,7 @@ MSC_RV MSCListTokens(MSCULong32 listScope, MSCLPTokenInfo tokenArray,
 		free(readerList);
 
 	/*
-	 * Application provides null requesting length 
+	 * Application provides null requesting length
 	 */
 	if (tokenArray == NULL)
 	{
@@ -267,7 +267,7 @@ MSC_RV MSCListTokens(MSCULong32 listScope, MSCLPTokenInfo tokenArray,
 	}
 
 	/*
-	 * Provided length is too small 
+	 * Provided length is too small
 	 */
 	if (*arrayLength < tokensFound)
 	{
@@ -323,7 +323,7 @@ MSC_RV MSCEstablishConnection(MSCLPTokenInfo tokenStruct,
 	pConnection->shareMode = 0;
 
 	/*
-	 * Check the token name strings 
+	 * Check the token name strings
 	 */
 	if (sharingMode != MSC_SHARE_DIRECT)
 	{
@@ -335,7 +335,7 @@ MSC_RV MSCEstablishConnection(MSCLPTokenInfo tokenStruct,
 	}
 
 	/*
-	 * Set up the initial connection to the resource manager 
+	 * Set up the initial connection to the resource manager
 	 */
 
 	mscLockThread();
@@ -380,7 +380,7 @@ MSC_RV MSCEstablishConnection(MSCLPTokenInfo tokenStruct,
 	pConnection->shareMode = sharingMode;
 
 	/*
-	 * Set the sendPCI value based on the ActiveProtocol 
+	 * Set the sendPCI value based on the ActiveProtocol
 	 */
 	switch (dwActiveProtocol)
 	{
@@ -396,8 +396,8 @@ MSC_RV MSCEstablishConnection(MSCLPTokenInfo tokenStruct,
 	}
 
 	/*
-	 * Call SCardStatus, make sure the card information matches if it does 
-	 * not return an error.  If it does, copy it 
+	 * Call SCardStatus, make sure the card information matches if it does
+	 * not return an error.  If it does, copy it
 	 */
 
 	rv = SCardStatus(pConnection->hCard, slotName,
@@ -418,7 +418,7 @@ MSC_RV MSCEstablishConnection(MSCLPTokenInfo tokenStruct,
 	{
 		/*
 		 * They asked for direct mode and no card is inserted so we are
-		 * done with this 
+		 * done with this
 		 */
 		return MSC_SUCCESS;
 	}
@@ -441,7 +441,7 @@ MSC_RV MSCEstablishConnection(MSCLPTokenInfo tokenStruct,
 		MSC_MAXSIZE_TOKENAME);
 
 	/*
-	 * Load the library for the token 
+	 * Load the library for the token
 	 */
 	rv = TPLoadToken(pConnection);
 
@@ -457,7 +457,7 @@ MSC_RV MSCEstablishConnection(MSCLPTokenInfo tokenStruct,
 	}
 
 	/*
-	 * Select the AID or initialization routine for the card 
+	 * Select the AID or initialization routine for the card
 	 */
 	vInitFunction = pConnection->libPointers.pvfInitializePlugin;
 	vIdFunction = pConnection->libPointers.pvfIdentifyToken;
@@ -505,7 +505,7 @@ MSC_RV MSCEstablishConnection(MSCLPTokenInfo tokenStruct,
 		if ((applicationName == 0) || (nameSize == 0))
 		{
 			/*
-			 * Use the default AID given by the Info.plist 
+			 * Use the default AID given by the Info.plist
 			 */
 
 			rv = (*libPL_MSCIdentifyToken) (pConnection);
@@ -562,7 +562,7 @@ MSC_RV MSCReleaseConnection(MSCLPTokenConnection pConnection,
 	}
 
 	/*
-	 * Select finalization routine for the token plugin 
+	 * Select finalization routine for the token plugin
 	 */
 	vFunction = pConnection->libPointers.pvfFinalizePlugin;
 
@@ -576,12 +576,12 @@ MSC_RV MSCReleaseConnection(MSCLPTokenConnection pConnection,
 	libPL_MSCFinalizePlugin = (MSCLong32(*)(MSCLPTokenConnection)) vFunction;
 
 	/*
-	 * Stop and clean up the plugin 
+	 * Stop and clean up the plugin
 	 */
 	rv = (*libPL_MSCFinalizePlugin) (pConnection);
 
 	/*
-	 * Disconnect from the token 
+	 * Disconnect from the token
 	 */
 	if (pConnection->hCard != 0)
 	{
@@ -591,22 +591,12 @@ MSC_RV MSCReleaseConnection(MSCLPTokenConnection pConnection,
 	}
 
 	/*
-	 * Unload the token driver 
+	 * Unload the token driver
 	 */
 	if (pConnection->tokenLibHandle != 0)
 	{
 		rv = TPUnloadToken(pConnection);
 		pConnection->tokenLibHandle = 0;
-	}
-
-	/*
-	 * Release Context
-	 */
-	if (pConnection->hContext != 0)
-	{
-		rv = SCardReleaseContext(pConnection->hContext);
-		if (pcscToMSC(rv) != MSC_SUCCESS)
-			return pcscToMSC(rv);
 	}
 
 	pConnection->tokenLibHandle = 0;
@@ -630,7 +620,7 @@ MSC_RV MSCWaitForTokenEvent(MSCLPTokenInfo tokenArray,
 	/*
 	 * Allocate array of SCARD_READERSTATE_A structures, set UNAWARE on
 	 * all of the structures to get the current status and then send them
-	 * to GetStatusChange for blocking event 
+	 * to GetStatusChange for blocking event
 	 */
 
 	if (arraySize == 0)
@@ -640,7 +630,7 @@ MSC_RV MSCWaitForTokenEvent(MSCLPTokenInfo tokenArray,
 			return MSC_INSUFFICIENT_BUFFER;
 
 	/*
-	 * Set up the initial connection to the resource manager 
+	 * Set up the initial connection to the resource manager
 	 */
 
 	mscLockThread();
@@ -665,7 +655,7 @@ MSC_RV MSCWaitForTokenEvent(MSCLPTokenInfo tokenArray,
 	for (i = 0; i < arraySize; i++)
 	{
 		/*
-		 * Make sure they don't pass an empty structure 
+		 * Make sure they don't pass an empty structure
 		 */
 		if (strlen(tokenArray[i].slotName) == 0)
 		{
@@ -710,7 +700,7 @@ MSC_RV MSCWaitForTokenEvent(MSCLPTokenInfo tokenArray,
 		if (tokenArray[i].tokenState & MSC_STATE_CHANGED)
 		{
 			/*
-			 * If it is removed, we need to update the names/etc 
+			 * If it is removed, we need to update the names/etc
 			 */
 			if (tokenArray[i].tokenState & MSC_STATE_EMPTY)
 			{
@@ -729,7 +719,7 @@ MSC_RV MSCWaitForTokenEvent(MSCLPTokenInfo tokenArray,
 				rt = TPSearchBundlesForAtr(rgReaderStates[i].rgbAtr,
 					rgReaderStates[i].cbAtr, &tokenInfo);
 				/*
-				 * Successfully found 
+				 * Successfully found
 				 */
 				if (rt == 0)
 				{
@@ -809,7 +799,7 @@ MSC_RV MSCCallbackForTokenEvent(MSCLPTokenInfo tokenArray,
 	MSCULong32 curToken;
 
 	/*
-	 * Create the event wait list 
+	 * Create the event wait list
 	 */
 	evlist = (MSCLPEventWaitInfo) malloc(sizeof(MSCEventWaitInfo));
 
@@ -831,7 +821,7 @@ MSC_RV MSCCallbackForTokenEvent(MSCLPTokenInfo tokenArray,
 	memcpy(evlist->tokenArray, tokenArray, sizeof(MSCTokenInfo) * arraySize);
 
 	/*
-	 * Copy the "extra" data 
+	 * Copy the "extra" data
 	 */
 	for (curToken = 0; curToken < arraySize; curToken++)
 	{
@@ -969,7 +959,7 @@ MSC_RV MSCWriteFramework(MSCLPTokenConnection pConnection,
 }
 
 /*
- * Real MSC functions 
+ * Real MSC functions
  */
 
 MSC_RV MSCGetStatus(MSCLPTokenConnection pConnection,
@@ -1482,7 +1472,7 @@ MSC_RV MSCWriteObject(MSCLPTokenConnection pConnection,
 
 	/*
 	 * Figure out the number of steps total and present this in a percent
-	 * step basis 
+	 * step basis
 	 */
 
 	totalSteps = objectSize / MSC_SIZEOF_KEYPACKET + 1;
@@ -1554,7 +1544,7 @@ MSC_RV MSCReadObject(MSCLPTokenConnection pConnection,
 
 	/*
 	 * Figure out the number of steps total and present this in a percent
-	 * step basis 
+	 * step basis
 	 */
 
 	totalSteps = objectSize / MSC_SIZEOF_KEYPACKET + 1;
@@ -1807,7 +1797,7 @@ MSC_RV MSCReadAllocateObject(MSCLPTokenConnection pConnection,
     MSCObjectInfo objInfo;
     MSCULong32 objectSize;
     MSCPUChar8  data = NULL;
-    
+
     if (pConnection == NULL)
         return MSC_INVALID_PARAMETER;
      if (localHContext == 0)
@@ -1822,7 +1812,7 @@ MSC_RV MSCReadAllocateObject(MSCLPTokenConnection pConnection,
     *pOutputData = 0;
 
     rv = MSCGetObjectAttributes(pConnection, objectID, &objInfo);
-    if (rv == MSC_SUCCESS) 
+    if (rv == MSC_SUCCESS)
     {
         objectSize = objInfo.objectSize;
         data = (MSCPUChar8) malloc(sizeof(MSCUChar8) * objectSize);
@@ -1830,7 +1820,7 @@ MSC_RV MSCReadAllocateObject(MSCLPTokenConnection pConnection,
         {
             rv =  MSCReadObject(pConnection, objectID, 0, data,
                      objectSize, rwCallback, addParams);
-            
+
             if (rv == MSC_SUCCESS)
             {
                 *dataSize = objectSize;
@@ -2008,7 +1998,7 @@ MSC_RV MSCReEstablishConnection(MSCLPTokenConnection pConnection)
 	vIdFunction = NULL;
 
 	/*
-	 * Select the AID or initialization routine for the card 
+	 * Select the AID or initialization routine for the card
 	 */
 	vInitFunction = pConnection->libPointers.pvfInitializePlugin;
 	vFinFunction = pConnection->libPointers.pvfFinalizePlugin;
@@ -2051,17 +2041,17 @@ MSC_RV MSCReEstablishConnection(MSCLPTokenConnection pConnection)
 		return pcscToMSC(rv);
 
 	/*
-	 * Stop the plugin and start it up again 
+	 * Stop the plugin and start it up again
 	 */
 	rv = (*libPL_MSCFinalizePlugin) (pConnection);
 
 	/*
-	 * Use the default AID given by the Info.plist 
+	 * Use the default AID given by the Info.plist
 	 */
 	rv = (*libPL_MSCInitializePlugin) (pConnection);
 
-	/* 
-	 * Use the default AID given by the Info.plist 
+	/*
+	 * Use the default AID given by the Info.plist
 	 */
 	rv = (*libPL_MSCIdentifyToken) (pConnection);
 
@@ -2138,4 +2128,3 @@ MSCUChar8 MSCIsTokenKnown(MSCLPTokenConnection pConnection)
 	else
 		return 0;
 }
-
