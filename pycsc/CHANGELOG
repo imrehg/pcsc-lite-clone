@@ -1,0 +1,10 @@
+
+ChangeLog for Pycsc:
+
+v 0.3:
+-----
+- Implements getStatusChange
+- one setup.py for all platforms
+- added minimal pcsc_stringify_error for Win32 (thanks to Arah Leonard)
+- calling constructor with no args or "" is now similar (thanks to Arah Leonard)
+- defined more constants (thanks to Arah Leonard)

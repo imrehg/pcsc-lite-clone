@@ -1,0 +1,38 @@
+
+Python wrapper to use with pcsclite
+===================================
+
+This package implements a new python type to communicate with smart cards.
+It relies on a working installation of pcscd (see http://www.musclecard.com).
+
+The communication level is very low (ADPU) so you are expected to be quite
+knowledgeable on smart cards to be able to make any use of this package.
+
+Limitations:
+============
+
+This is a very early prototype and lots of things are not implemented 
+(particularly all the error management). They will hopefully be added in the
+near future. 
+
+The package is NOT thread safe.
+
+On the function getStatusChange: Windows has a different behaviour from
+pcsc-lite. The safe way to use this function is to first run it to 
+query the EventState and the call it again with the returned EventSate
+as CurrentState (see example.py)
+
+
+Authors:
+========
+- Jean-Luc Giraud (jlgiraud@mac.com)
+
+Contributors:
+=============
+- Franck Bui-Huu (franck_buihuu@yahoo.fr)
+
+Supported platforms:
+====================
+- python2.2, 2.3
+- Mac OS X, Linux, Windows 2000 
+

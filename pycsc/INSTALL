@@ -1,0 +1,43 @@
+Python wrapper to use with pcsclite
+===================================
+
+Authors:
+========
+- Jean-Luc Giraud (jlgiraud@mac.com)
+
+
+Supported platforms:
+====================
+- Mac OS X
+- linux
+- Windows 2000
+
+Requirements:
+=============
+1- pcsclite installed and functional (http://www.musclecard.com/middle.html)
+2- pcsclite developer packages if you use precompiled binaries
+3- a card driver for your card reader
+4- python 2.2 or higher
+
+Step 1 and 2 do not apply to Windows as PC/SC is already part of the OS.
+
+Minimal help:
+=============
+
+On Linux:
+- to build:
+        $ python setup.py build
+- to install:
+        $ sudo python setup.py install
+
+On Mac OS X:
+- to build:
+        $ python setup_MacOSX.py build
+- to install:
+        $ sudo python setup_MacOSX.py install
+
+On Mac OS X:
+- to build and install:
+        $ python setup_Win32.py install
+
+See example.py for details on how to use pycsc.
