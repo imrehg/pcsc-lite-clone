@@ -26,7 +26,9 @@
 #include <wintypes.h>
 #include <PCSC/winscard.h>
 #else
+#ifdef WIN32
 #include <windows.h>
+#endif
 #include <winscard.h>
 #endif
 
