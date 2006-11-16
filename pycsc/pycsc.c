@@ -470,7 +470,8 @@ static PyObject * pycsc_control(PyObject *self, PyObject * args)
 #else
         rv = SCardControl(object->hCard, dwControlCode, inBuffer, inBufferLen, 
                           outBuffer, sizeof(outBuffer), &outBufferLen);
-#endif	if ( rv != SCARD_S_SUCCESS )
+#endif
+	if ( rv != SCARD_S_SUCCESS )
 	{
 		PyErr_SetString(PycscException, pcsc_stringify_error(rv));
 		return NULL;
