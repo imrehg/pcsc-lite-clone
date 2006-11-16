@@ -33,7 +33,7 @@ else:
          include = []
     else:
          libs = ["pcsclite"]
-         include = ["/usr/include/pcsc"]
+         include = ["/usr/include/PCSC"]
 
 
 setup(name="pycsc", version="0.3",
