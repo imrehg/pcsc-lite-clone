@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 #***********************************************************
 #        Title: setup.py
 #       Author: Jean-Luc Giraud <jlgiraud@mac.com>
