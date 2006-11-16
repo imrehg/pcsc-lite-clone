@@ -1,6 +1,37 @@
 
 ChangeLog for Pycsc:
 
+v 0.0.4:
+-----
+Thanks to Arah Leonard::
+- Made pcsc_stringify_error a little more informative by including a
+string equivalent of the error code.
+- Made pycscobject_pycsc slightly more flexible in that it works the same
+as before except that it will now also autoconnect to the first avaialble
+reader if you give it an empty reader name string.  (I found it convenient
+when you want the option of specifying a reader name but want the code to be
+identical to if no reader name was specified.)
+- Added more constants to initpycsc.
+
+Thanks to Robert Hözl:
+- More pcsc_stringify_error for Win32 
+- Support for compilation using Borland C++
+- More defined constants
+- SCardGetAttributes and SCardSetAtttributes
+- SCardControl 
+
+Thanks to Bashkar:
+- Comments on each function
+
+Thanks to Philippe C Martin:
+- Improvement to pycsc_control
+
+TODO from Philippe: 
+- pycscobject_getCtlCode <--- Why is this necessary? SCARD_CTL_CODE not on Mac
+- tag_PIN_VERIFY_STRUCTURE
+See other C file
+
+
 v 0.3:
 -----
 - Implements getStatusChange

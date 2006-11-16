@@ -9,7 +9,14 @@
 *
 *      Copyright (c) 2003 - Jean-Luc Giraud.
 *
+*      MODIFIED SEPT 2004 - Philippe C. Martin - SnakeCard, LLC (T=1)
+*      MODIFIED APRIL 2006 - Philippe C. Martin - SnakeCard, LLC (SCardControl + PIN verify support)
 ************************************************************/
+
+// workaround for using Borland C++ with Python compiled by Visual C++.
+#if defined(SUPPRESS_DEBUG) && defined(_DEBUG)
+#undef _DEBUG
+#endif
 
 #include <Python.h>
 
@@ -19,8 +26,13 @@
 #include <wintypes.h>
 #include <PCSC/winscard.h>
 #else
+#include <windows.h>
 #include <winscard.h>
 #endif
+
+#define PYCSC_PLATFORM_PCSCLITE "pcsc-lite"
+#define PYCSC_PLATFORM_PCSCWINDOWS "pcsc-windows"
+
 
 /* Internal tool */
 static LONG getReaderList(SCARDCONTEXT hContext, LPSTR* pmszReaders, 
@@ -28,12 +40,28 @@ static LONG getReaderList(SCARDCONTEXT hContext, LPSTR* pmszReaders,
 
 #ifdef _WINDOWS_
 /* Windows does not provide the pcsc_stringify_error function */
+/*******************************************************************
+ **
+ **  Function    : pcsc_stringify_error 
+ **
+ **  Description : Converts the long type resultant values into the 
+ **                readable string format.
+ **  Params (I)  : Return value in long format.
+ **  Returns     : Return value in string converted format.
+ **
+ *******************************************************************/
 char ErrorString[200];
 char *pcsc_stringify_error(LONG rv)
 {
 	char strErrorCode[50];
 	switch(rv) 
 	{
+		case ERROR_BROKEN_PIPE:
+			strcpy(strErrorCode, "ERROR_BROKEN_PIPE");
+			break;
+		case SCARD_E_BAD_SEEK:
+			strcpy(strErrorCode, "SCARD_E_BAD_SEEK");
+			break;
 		case SCARD_E_CANCELLED:
 			strcpy(strErrorCode, "SCARD_E_CANCELLED");
 			break;
@@ -43,14 +71,35 @@ char *pcsc_stringify_error(LONG rv)
 		case SCARD_E_CARD_UNSUPPORTED:
 			strcpy(strErrorCode, "SCARD_E_CARD_UNSUPPORTED");
 			break;
+		case SCARD_E_CERTIFICATE_UNAVAILABLE:
+			strcpy(strErrorCode, "SCARD_E_CERTIFICATE_UNAVAILABLE");
+			break;
+		case SCARD_E_COMM_DATA_LOST:
+			strcpy(strErrorCode, "SCARD_E_COMM_DATA_LOST");
+			break;
+		case SCARD_E_DIR_NOT_FOUND:
+			strcpy(strErrorCode, "SCARD_E_DIR_NOT_FOUND");
+			break;
 		case SCARD_E_DUPLICATE_READER:
 			strcpy(strErrorCode, "SCARD_E_DUPLICATE_READER");
+			break;
+		case SCARD_E_FILE_NOT_FOUND:
+			strcpy(strErrorCode, "SCARD_E_FILE_NOT_FOUND");
+			break;
+		case SCARD_E_ICC_CREATEORDER:
+			strcpy(strErrorCode, "SCARD_E_ICC_CREATEORDER");
+			break;
+		case SCARD_E_ICC_INSTALLATION:
+			strcpy(strErrorCode, "SCARD_E_ICC_INSTALLATION");
 			break;
 		case SCARD_E_INSUFFICIENT_BUFFER:
 			strcpy(strErrorCode, "SCARD_E_INSUFFICIENT_BUFFER");
 			break;
 		case SCARD_E_INVALID_ATR:
 			strcpy(strErrorCode, "SCARD_E_INVALID_ATR");
+			break;
+		case SCARD_E_INVALID_CHV:
+			strcpy(strErrorCode, "SCARD_E_INVALID_CHV");
 			break;
 		case SCARD_E_INVALID_HANDLE:
 			strcpy(strErrorCode, "SCARD_E_INVALID_HANDLE");
@@ -64,20 +113,37 @@ char *pcsc_stringify_error(LONG rv)
 		case SCARD_E_INVALID_VALUE:
 			strcpy(strErrorCode, "SCARD_E_INVALID_VALUE");
 			break;
-		case SCARD_E_NOT_READY:
-			strcpy(strErrorCode, "SCARD_E_NOT_READY");
+		case SCARD_E_NO_ACCESS:
+			strcpy(strErrorCode, "SCARD_E_NO_ACCESS");
 			break;
+		case SCARD_E_NO_DIR:
+			strcpy(strErrorCode, "SCARD_E_NO_DIR");
+			break;
+		case SCARD_E_NO_FILE:
+			strcpy(strErrorCode, "SCARD_E_NO_FILE");
 		case SCARD_E_NOT_TRANSACTED:
 			strcpy(strErrorCode, "SCARD_E_NOT_TRANSACTED");
 			break;
 		case SCARD_E_NO_MEMORY:
 			strcpy(strErrorCode, "SCARD_E_NO_MEMORY");
 			break;
+		case SCARD_E_NO_READERS_AVAILABLE:
+			strcpy(strErrorCode, "SCARD_E_NO_READERS_AVAILABLE");
+			break;
 		case SCARD_E_NO_SERVICE:
 			strcpy(strErrorCode, "SCARD_E_NO_SERVICE");
 			break;
 		case SCARD_E_NO_SMARTCARD:
 			strcpy(strErrorCode, "SCARD_E_NO_SMARTCARD");
+			break;
+		case SCARD_E_NO_SUCH_CERTIFICATE:
+			strcpy(strErrorCode, "SCARD_E_NO_SUCH_CERTIFICATE");
+			break;
+		case SCARD_E_NOT_READY:
+			strcpy(strErrorCode, "SCARD_E_NOT_READY");
+			break;
+		case SCARD_E_NOT_TRANSACTED:
+			strcpy(strErrorCode, "SCARD_E_NOT_TRANSACTED");
 			break;
 		case SCARD_E_PCI_TOO_SMALL:
 			strcpy(strErrorCode, "SCARD_E_PCI_TOO_SMALL");
@@ -103,11 +169,23 @@ char *pcsc_stringify_error(LONG rv)
 		case SCARD_E_TIMEOUT:
 			strcpy(strErrorCode, "SCARD_E_TIMEOUT");
 			break;
+		case SCARD_E_UNEXPECTED:
+			strcpy(strErrorCode, "SCARD_E_UNEXPECTED");
+			break;
 		case SCARD_E_UNKNOWN_CARD:
 			strcpy(strErrorCode, "SCARD_E_UNKNOWN_CARD");
 			break;
 		case SCARD_E_UNKNOWN_READER:
 			strcpy(strErrorCode, "SCARD_E_UNKNOWN_READER");
+			break;
+		case SCARD_E_UNKNOWN_RES_MNG:
+			strcpy(strErrorCode, "SCARD_E_UNKNOWN_RES_MNG");
+			break;
+		case SCARD_E_UNSUPPORTED_FEATURE:
+			strcpy(strErrorCode, "SCARD_E_UNSUPPORTED_FEATURE");
+			break;
+		case SCARD_E_WRITE_TOO_MANY:
+			strcpy(strErrorCode, "SCARD_E_WRITE_TOO_MANY");
 			break;
 		case SCARD_F_COMM_ERROR:
 			strcpy(strErrorCode, "SCARD_F_COMM_ERROR");
@@ -121,14 +199,29 @@ char *pcsc_stringify_error(LONG rv)
 		case SCARD_F_WAITED_TOO_LONG:
 			strcpy(strErrorCode, "SCARD_F_WAITED_TOO_LONG");
 			break;
+		case SCARD_P_SHUTDOWN:
+			strcpy(strErrorCode, "SCARD_P_SHUTDOWN");
+			break;
 		case SCARD_S_SUCCESS:
 			strcpy(strErrorCode, "SCARD_S_SUCCESS");
+			break;
+		case SCARD_W_CANCELLED_BY_USER:
+			strcpy(strErrorCode, "SCARD_W_CANCELLED_BY_USER");
+			break;
+		case SCARD_W_CHV_BLOCKED:
+			strcpy(strErrorCode, "SCARD_W_CHV_BLOCKED");
+			break;
+		case SCARD_W_EOF:
+			strcpy(strErrorCode, "SCARD_W_EOF");
 			break;
 		case SCARD_W_REMOVED_CARD:
 			strcpy(strErrorCode, "SCARD_W_REMOVED_CARD");
 			break;
 		case SCARD_W_RESET_CARD:
 			strcpy(strErrorCode, "SCARD_W_RESET_CARD");
+			break;
+		case SCARD_W_SECURITY_VIOLATION:
+			strcpy(strErrorCode, "SCARD_W_SECURITY_VIOLATION");
 			break;
 		case SCARD_W_UNPOWERED_CARD:
 			strcpy(strErrorCode, "SCARD_W_UNPOWERED_CARD");
@@ -138,6 +231,9 @@ char *pcsc_stringify_error(LONG rv)
 			break;
 		case SCARD_W_UNSUPPORTED_CARD:
 			strcpy(strErrorCode, "SCARD_W_UNSUPPORTED_CARD");
+			break;
+		case SCARD_W_WRONG_CHV:
+			strcpy(strErrorCode, "SCARD_W_WRONG_CHV");
 			break;
 		default:
 			strcpy(strErrorCode, "Unknown");
@@ -185,11 +281,23 @@ staticforward PyTypeObject PycscType;
  * cancelTransaction()
  *
  ***********************************************************/
+
+ /******************************************************************
+  **
+  **  Function    : pycsc_reconnect
+  **
+  **  Description : This function reestablishes a connection to a 
+  **				reader that was previously connected to. In a 
+  **				multi application environment it is possible 
+  **				for an application to reset the card in shared 
+  **				mode.
+  **
+  ******************************************************************/
 static PyObject * pycsc_reconnect( PyObject *self,  PyObject *args,  PyObject *keywds)
 {
   pycscobject *object = (pycscobject *)self;
   LONG rv;
-  DWORD dwPreferredProtocol = SCARD_PROTOCOL_T0;
+  DWORD dwPreferredProtocol = SCARD_PROTOCOL_T0|SCARD_PROTOCOL_T1;
   DWORD dwInitialization    = SCARD_LEAVE_CARD;
   DWORD pdwActiveProtocol;
 
@@ -206,7 +314,13 @@ static PyObject * pycsc_reconnect( PyObject *self,  PyObject *args,  PyObject *k
   printf("sMode = %ld\n",object->sMode);
   printf("pProt = %ld\n",dwPreferredProtocol);
   printf("init = %ld\n",dwInitialization);
+  printf("IN RECONNECT\n");
+  printf("object->sMode %d\n",object->sMode);
+  printf("object->dwPreferredProtocol %d\n",dwPreferredProtocol);
+  printf("object->dwInitialization %d\n",dwInitialization);
 #endif
+
+
   rv = SCardReconnect(object->hCard, object->sMode, dwPreferredProtocol,
               dwInitialization, &pdwActiveProtocol);
 
@@ -219,6 +333,14 @@ static PyObject * pycsc_reconnect( PyObject *self,  PyObject *args,  PyObject *k
   Py_INCREF(Py_None);
   return Py_None;
 }
+
+/******************************************************************
+ **
+ **  Function    : pycsc_disconnect
+ **
+ **  Description : Closes connection to the smart card reader.
+ **
+ ******************************************************************/
 
 static PyObject * pycsc_disconnect(PyObject *self, PyObject * args)
 {
@@ -244,12 +366,14 @@ static PyObject * pycsc_disconnect(PyObject *self, PyObject * args)
   return Py_None;
 }
 
-/* Returns a dictionary with keys as follows:
-                            "ReaderName"
-                            "State"
-                            "Protocol"
-                            "ATR"
-*/
+/******************************************************************
+ **
+ **  Function    : pycsc_status
+ **
+ **  Description : Retrieves status of the card. The extracted 
+ **				   fields are ReaderName, State, Protocol, ATR.
+ **
+ ******************************************************************/
 static PyObject * pycsc_status(PyObject *self, PyObject * args)
 {
   pycscobject *object = (pycscobject *)self;
@@ -310,13 +434,118 @@ static PyObject * pycsc_status(PyObject *self, PyObject * args)
   return ret_value;
 }
 
+/******************************************************************
+ **
+ **  Function    : pycsc_control
+ **
+ **  Description : Should invoke SCardcontrol with necessary 
+ **				   parameters.This function sends a command directly
+ **				   to the IFD Handler to be processed by the reader.
+ **				   This is useful for creating client side reader 
+ **				   drivers for functions like PIN pads, biometrics, 
+ **				   or other extensions to the normal smart card reader 
+ **				   that are not normally handled by PC/SC.
+ **
+ ******************************************************************/
 static PyObject * pycsc_control(PyObject *self, PyObject * args)
 {
+	pycscobject *object = (pycscobject *)self;
+	DWORD dwControlCode;
+	unsigned char * inBuffer;
+	unsigned long inBufferLen, outBufferLen;
+	unsigned char outBuffer[0x800];
+	LONG  rv;
+
+	if (!PyArg_ParseTuple(args,"ks#", &dwControlCode, &inBuffer, &inBufferLen))
+	{
+		PyErr_SetString(PycscException, "pycsc_control: parameters parsing failed");
+		return NULL;
+	}
+#ifdef __APPLE__
+        outBufferLen = sizeof(outBuffer);
+	rv = SCardControl(object->hCard, inBuffer, inBufferLen, outBuffer, 
+                          &outBufferLen);
+#else
+        rv = SCardControl(object->hCard, dwControlCode, inBuffer, inBufferLen, 
+                          outBuffer, sizeof(outBuffer), &outBufferLen);
+#endif	if ( rv != SCARD_S_SUCCESS )
+	{
+		PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+		return NULL;
+	}
+
+	return Py_BuildValue("s#", outBuffer, outBufferLen);
+}
+
+static PyObject * pycsc_getAttrib(PyObject *self, PyObject * args)
+{
+//+ NEED TO CHECK IF IT REALLY DOES NOT EXIST ON PCSC/LITE
+#ifdef WINDOWS
+	pycscobject *object = (pycscobject *)self;
+	DWORD attrId;
+	LPBYTE attrValue = NULL;
+	DWORD attrValueLen = SCARD_AUTOALLOCATE;
+	LONG  rv;
+	PyObject * result;
+
+	// read parameter (attrId)
+	if (!PyArg_ParseTuple(args,"k", &attrId))
+		return NULL;
+
+	// retrieve attribute value
+	rv = SCardGetAttrib(object->hCard, attrId, (LPBYTE) &attrValue, &attrValueLen);
+	if ( rv != SCARD_S_SUCCESS )
+	{
+		PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+		return NULL;
+	}
+
+	// create result object of attrValue
+	result = Py_BuildValue("s#", attrValue, attrValueLen);
+
+	SCardFreeMemory(object->hContext, attrValue);
+	return result;
+#else
   PyErr_SetString(PycscException, "Not implemented");
   return NULL;
+#endif
+}
+
+static PyObject * pycsc_setAttrib(PyObject *self, PyObject * args)
+{
+#ifdef WINDOWS
+	pycscobject *object = (pycscobject *)self;
+	DWORD attrId;
+	DWORD attrValueLen;
+	LPCBYTE attrValue;
+	LONG  rv;
+
+	if (!PyArg_ParseTuple(args,"ks#", &attrId, &attrValue, &attrValueLen))
+		return NULL;
+
+	rv = SCardSetAttrib(object->hCard, attrId, attrValue, attrValueLen);
+	if ( rv != SCARD_S_SUCCESS )
+	{
+		PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+		return NULL;
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+#else
+  PyErr_SetString(PycscException, "Not implemented");
+  return NULL;
+#endif
 }
 
 
+/******************************************************************
+ **
+ **  Function    : pycsc_control
+ **
+ **  Description : Retrieve SCARD_PCI_XX address from
+ **				   SCARD_PROTOCOL_XX constant 
+ **
+ ******************************************************************/
 /* Retrieve SCARD_PCI_XX address from SCARD_PROTOCOL_XX constant */
 static SCARD_IO_REQUEST *protocoltoPCI(DWORD dwProtocol)
 {
@@ -334,7 +563,14 @@ static SCARD_IO_REQUEST *protocoltoPCI(DWORD dwProtocol)
   }
 }
 
-/* args : a string representing data to send */
+/******************************************************************
+ **
+ **  Function    : pycsc_transmit
+ **
+ **  Description : Transmits APDU commands to the smart card. The 
+ **				   responds to the APDU.
+ **
+ ******************************************************************/
 static PyObject * pycsc_transmit(PyObject *self, PyObject * args, 
                                  PyObject *keywds)
 {  
@@ -370,11 +606,38 @@ static PyObject * pycsc_transmit(PyObject *self, PyObject * args,
   return Py_BuildValue("s#", resparray, resplength);
 }
 
+/******************************************************************
+ **
+ **  Function    : pycsc_cancel
+ **
+ **  Description : Should invoke SCardCancel() with necessary 
+ **				   parameters. This function cancels all pending
+ **				   blocking requests.
+ **
+ ******************************************************************/
+
 static PyObject * pycsc_cancel(PyObject *self, PyObject * args)
 {
   PyErr_SetString(PycscException, "Not implemented");
   return NULL;
 }
+
+/******************************************************************
+ **
+ **  Function    : pycsc_beginTransaction
+ **
+ **  Description : Should invoke SCardBeginTransaction with necessary
+ **				   parameters.This function establishes a temporary 
+ **				   exclusive access mode for doing a series of commands 
+ **                or transaction. You might want to use this when you 
+ **				   are selecting a few files and then writing a large 
+ **				   file so you can make sure that another application 
+ **				   will not change the current file. If another 
+ **				   application has a lock on this reader or this 
+ **			       application is in SCARD_SHARE_EXCLUSIVE there will
+ **				   be no action taken.
+ **
+ ******************************************************************/
 
 static PyObject * pycsc_beginTransaction(PyObject *self, PyObject * args)
 {
@@ -382,11 +645,35 @@ static PyObject * pycsc_beginTransaction(PyObject *self, PyObject * args)
   return NULL;
 }
 
+
+/******************************************************************
+ **
+ **  Function    : pycsc_endTransaction
+ **
+ **  Description : Should invoke SCardEndTransaction with necessary
+ **				   parameters. This function ends a previously begun
+ **			       transaction. The calling application must be the
+ **				   owner of the previously begun transaction or an 
+ **			       error will occur. 
+ **
+ ******************************************************************/
+
 static PyObject * pycsc_endTransaction(PyObject *self, PyObject * args)
 {
   PyErr_SetString(PycscException, "Not implemented");
   return NULL;
 }
+
+
+/******************************************************************
+ **
+ **  Function    : pycsc_cancelTransaction
+ **
+ **  Description : Should invoke SCardCancel with necessary 
+ **				   parameters. This function cancels all pending 
+ **				   blocking requests.
+ **
+ ******************************************************************/
 
 static PyObject * pycsc_cancelTransaction(PyObject *self, PyObject * args)
 {
@@ -398,16 +685,33 @@ static PyObject * pycsc_cancelTransaction(PyObject *self, PyObject * args)
 /* Declaration of methods */
 static struct PyMethodDef pycsc_methods[] =
 {
- {"reconnect",(PyCFunction)pycsc_reconnect,     METH_VARARGS|METH_KEYWORDS},
- {"disconnect",        pycsc_disconnect,        METH_VARARGS},
- {"status",            pycsc_status,            METH_VARARGS},
- {"control",           pycsc_control,           METH_VARARGS},
- {"transmit",(PyCFunction)pycsc_transmit,       METH_VARARGS|METH_KEYWORDS},
- {"cancel",            pycsc_cancel,            METH_VARARGS},
- {"beginTransaction",  pycsc_beginTransaction,  METH_VARARGS},
- {"endTransaction",    pycsc_endTransaction,    METH_VARARGS},
- {"cancelTransaction", pycsc_cancelTransaction, METH_VARARGS},
- {NULL,                NULL}
+	{"reconnect",(PyCFunction)pycsc_reconnect,     METH_VARARGS|METH_KEYWORDS,
+		"reconnect(smode, protocol, init) -> None." },
+	{"disconnect",        pycsc_disconnect,        METH_VARARGS,
+		"disconnect() -> None." },
+	{"status",            pycsc_status,            METH_VARARGS,
+		"status() -> {\"ReaderName\":str, \"Protocol\":int, \"State\":int, \"ATR\":str}"},
+	{"control",           pycsc_control,           METH_VARARGS,
+		"control(controlCode, inBuffer) -> outBuffer.\n\
+Gets direct control of the reader after connection to card/reader is established.\
+inBuffer and outBuffer are strings."},
+	{"getAttrib",         pycsc_getAttrib,         METH_VARARGS,
+		"getAttrib(attrId) -> attrValue"},
+	{"setAttrib",         pycsc_setAttrib,         METH_VARARGS,
+		"getAttrib(attrId, attrValue)"},
+	{"transmit",(PyCFunction)pycsc_transmit,       METH_VARARGS|METH_KEYWORDS,
+		"transmit(com, sendPCI) -> resp.\n\
+Sends a APDU (the string in 'com') to the card. By specifing sendPCI \
+different protocol can be used"},
+	{"cancel",            pycsc_cancel,            METH_VARARGS,
+		"not implemented yet"},
+	{"beginTransaction",  pycsc_beginTransaction,  METH_VARARGS,
+		"not implemented yet"},
+	{"endTransaction",    pycsc_endTransaction,    METH_VARARGS,
+		"not implemented yet"},
+	{"cancelTransaction", pycsc_cancelTransaction, METH_VARARGS,
+		"not implemented yet"},
+	{NULL,                NULL}
 };
 
 
@@ -496,6 +800,16 @@ statichere PyTypeObject PycscType =
 
 
 /* This is the "creator" for a new pycsc object */
+
+/******************************************************************
+ **
+ **  Function    : pycscobject_pycsc
+ **
+ **  Description : Creates new pycsc object and establishes the 
+ **				   connection to the Smart Card Reader.
+ **
+ ******************************************************************/
+
 static PyObject * pycscobject_pycsc(PyObject *self, PyObject * args, PyObject *keywds)
 {
   /* No reader name in args, connect to the first reader */
@@ -504,7 +818,7 @@ static PyObject * pycscobject_pycsc(PyObject *self, PyObject * args, PyObject *k
   DWORD dwReaders;
   DWORD dwMode = SCARD_SHARE_SHARED;
   DWORD eProtocol;   /* effective protocol */
-  DWORD dwPreferredProtocol = SCARD_PROTOCOL_T0;
+  DWORD dwPreferredProtocol = SCARD_PROTOCOL_T0|SCARD_PROTOCOL_T1;
   SCARDCONTEXT  hContext;
   SCARDHANDLE   hCard;
   LONG rv;
@@ -608,6 +922,16 @@ static PyObject * pycscobject_pycsc(PyObject *self, PyObject * args, PyObject *k
   return (PyObject *) newself;
 }
 
+
+/******************************************************************
+ **
+ **  Function    : pycscobject_listReader
+ **
+ **  Description : This function returns a list of currently 
+ **				   available readers on the system.
+ **
+ ******************************************************************/
+
 static PyObject * pycscobject_listReader(PyObject *self, PyObject * args)
 {
   SCARDCONTEXT  hContext;
@@ -661,6 +985,15 @@ static PyObject * pycscobject_listReader(PyObject *self, PyObject * args)
   return ret_value;
 
 }
+
+/******************************************************************
+ **
+ **  Function    : pycscobject_listReaderGroups
+ **
+ **  Description : This function returns a list of currently 
+ **				   available reader groups on the system.
+ **
+ ******************************************************************/
 
 static PyObject * pycscobject_listReaderGroups(PyObject *self, PyObject * args)
 {
@@ -883,61 +1216,107 @@ static PyObject * pycscobject_getStatusChange(PyObject *self, PyObject * args,  
 /* Declaration of methods */
 static struct PyMethodDef pycsctype_methods[] =
 {
- {"pycsc",(PyCFunction)pycscobject_pycsc,             METH_VARARGS|METH_KEYWORDS},
- {"listReader",        pycscobject_listReader,        METH_VARARGS},
- {"listReaderGroups",  pycscobject_listReaderGroups,  METH_VARARGS},
- {"getStatusChange",(PyCFunction)   pycscobject_getStatusChange,   METH_VARARGS|METH_KEYWORDS},
- {(char*)NULL,         (PyCFunction)NULL,             (int)NULL}
+	{"pycsc",(PyCFunction)pycscobject_pycsc,             METH_VARARGS|METH_KEYWORDS},
+	{"listReader",        pycscobject_listReader,        METH_VARARGS},
+	{"listReaderGroups",  pycscobject_listReaderGroups,  METH_VARARGS},
+	{"getStatusChange",(PyCFunction)   pycscobject_getStatusChange,   METH_VARARGS|METH_KEYWORDS},
+	{(char*)NULL,         (PyCFunction)NULL,             (int)NULL}
 };
 
 
 /* Module initialisation */
 void initpycsc(void)
 {
-  PyObject *m, *d;
+  PyObject *m;
 
-  /* patch object type for building dll on windows... */
-  PycscType.ob_type = &PyType_Type;
-  m = Py_InitModule("pycsc", pycsctype_methods);
-  d = PyModule_GetDict(m);
+	/* patch object type for building dll on windows... */
+	PycscType.ob_type = &PyType_Type;
+	m = Py_InitModule("pycsc", pycsctype_methods);
 
-  //+ Add error code and constants definitions
-  PyDict_SetItemString(d, "SCARD_LEAVE_CARD", PyInt_FromLong(SCARD_LEAVE_CARD)); 
-  PyDict_SetItemString(d, "SCARD_RESET_CARD", PyInt_FromLong(SCARD_RESET_CARD));
-  PyDict_SetItemString(d, "SCARD_SHARE_SHARED", PyInt_FromLong(SCARD_SHARE_SHARED));
-  PyDict_SetItemString(d, "SCARD_SHARE_EXCLUSIVE", PyInt_FromLong(SCARD_SHARE_EXCLUSIVE));
-  PyDict_SetItemString(d, "SCARD_SHARE_DIRECT", PyInt_FromLong(SCARD_SHARE_DIRECT));
-  
-  PyDict_SetItemString(d, "SCARD_PROTOCOL_T0", PyInt_FromLong(SCARD_PROTOCOL_T0));
-  PyDict_SetItemString(d, "SCARD_PROTOCOL_T1", PyInt_FromLong(SCARD_PROTOCOL_T1));
-  PyDict_SetItemString(d, "SCARD_PROTOCOL_RAW", PyInt_FromLong(SCARD_PROTOCOL_RAW));
-#ifdef _WINDOWS_
-  PyDict_SetItemString(d, "SCARD_PROTOCOL_UNDEFINED", PyInt_FromLong(SCARD_PROTOCOL_UNDEFINED));
+	//+ Add error code and constants definitions
+	PyModule_AddIntConstant(m, "SCARD_LEAVE_CARD", SCARD_LEAVE_CARD);
+	PyModule_AddIntConstant(m, "SCARD_LEAVE_CARD", SCARD_LEAVE_CARD);
+	PyModule_AddIntConstant(m, "SCARD_RESET_CARD", SCARD_RESET_CARD);
+	PyModule_AddIntConstant(m, "SCARD_SHARE_SHARED", SCARD_SHARE_SHARED);
+	PyModule_AddIntConstant(m, "SCARD_SHARE_EXCLUSIVE", SCARD_SHARE_EXCLUSIVE);
+	PyModule_AddIntConstant(m, "SCARD_SHARE_DIRECT", SCARD_SHARE_DIRECT);
+
+	PyModule_AddIntConstant(m, "SCARD_PROTOCOL_T0", SCARD_PROTOCOL_T0);
+	PyModule_AddIntConstant(m, "SCARD_PROTOCOL_T1", SCARD_PROTOCOL_T1);
+	PyModule_AddIntConstant(m, "SCARD_PROTOCOL_RAW", SCARD_PROTOCOL_RAW);
+	#ifdef _WINDOWS_
+	PyModule_AddIntConstant(m, "SCARD_PROTOCOL_UNDEFINED", SCARD_PROTOCOL_UNDEFINED);
+	#endif
+	PyModule_AddIntConstant(m, "SCARD_ABSENT", SCARD_ABSENT);
+	PyModule_AddIntConstant(m, "SCARD_PRESENT", SCARD_PRESENT);
+	PyModule_AddIntConstant(m, "SCARD_SWALLOWED", SCARD_SWALLOWED);
+	PyModule_AddIntConstant(m, "SCARD_POWERED", SCARD_POWERED);
+	PyModule_AddIntConstant(m, "SCARD_NEGOTIABLE", SCARD_NEGOTIABLE);
+	PyModule_AddIntConstant(m, "SCARD_SPECIFIC", SCARD_SPECIFIC);
+	#ifndef _WINDOWS_
+	// PCSC-lite specific
+	PyModule_AddIntConstant(m, "SCARD_PROTOCOL_ANY", SCARD_PROTOCOL_ANY);
+	#endif
+	PyModule_AddIntConstant(m, "SCARD_STATE_UNAWARE", SCARD_STATE_UNAWARE);
+	PyModule_AddIntConstant(m, "SCARD_STATE_IGNORE", SCARD_STATE_IGNORE);
+	PyModule_AddIntConstant(m, "SCARD_STATE_CHANGED", SCARD_STATE_CHANGED);
+	PyModule_AddIntConstant(m, "SCARD_STATE_UNKNOWN", SCARD_STATE_UNKNOWN);
+	PyModule_AddIntConstant(m, "SCARD_STATE_UNAVAILABLE", SCARD_STATE_UNAVAILABLE);
+	PyModule_AddIntConstant(m, "SCARD_STATE_EMPTY", SCARD_STATE_EMPTY);
+	PyModule_AddIntConstant(m, "SCARD_STATE_PRESENT", SCARD_STATE_PRESENT);
+	PyModule_AddIntConstant(m, "SCARD_STATE_ATRMATCH", SCARD_STATE_ATRMATCH);
+	PyModule_AddIntConstant(m, "SCARD_STATE_EXCLUSIVE", SCARD_STATE_EXCLUSIVE);
+	PyModule_AddIntConstant(m, "SCARD_STATE_INUSE", SCARD_STATE_INUSE);
+	PyModule_AddIntConstant(m, "SCARD_STATE_MUTE", SCARD_STATE_MUTE);
+
+#ifdef WINDOWS
+	// These values are taken from the Win32 SCard documentation
+	PyModule_AddIntConstant(m, "SCARD_ATTR_SUPRESS_T1_IFS_REQUEST", SCARD_ATTR_SUPRESS_T1_IFS_REQUEST); 
+	PyModule_AddIntConstant(m, "SCARD_ATTR_ATR_STRING", SCARD_ATTR_ATR_STRING);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_CHANNEL_ID", SCARD_ATTR_CHANNEL_ID);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_CHARACTERISTICS", SCARD_ATTR_CHARACTERISTICS);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_CURRENT_BWT", SCARD_ATTR_CURRENT_BWT);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_CURRENT_CLK", SCARD_ATTR_CURRENT_CLK);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_CURRENT_CWT", SCARD_ATTR_CURRENT_CWT);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_CURRENT_D", SCARD_ATTR_CURRENT_D);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_CURRENT_EBC_ENCODING", SCARD_ATTR_CURRENT_EBC_ENCODING);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_CURRENT_F", SCARD_ATTR_CURRENT_F);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_CURRENT_IFSC", SCARD_ATTR_CURRENT_IFSC);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_CURRENT_IFSD", SCARD_ATTR_CURRENT_IFSD);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_CURRENT_N", SCARD_ATTR_CURRENT_N);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_CURRENT_PROTOCOL_TYPE", SCARD_ATTR_CURRENT_PROTOCOL_TYPE);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_CURRENT_W", SCARD_ATTR_CURRENT_W);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_DEFAULT_CLK", SCARD_ATTR_DEFAULT_CLK);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_DEFAULT_DATA_RATE", SCARD_ATTR_DEFAULT_DATA_RATE);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_DEVICE_FRIENDLY_NAME", SCARD_ATTR_DEVICE_FRIENDLY_NAME);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_DEVICE_IN_USE", SCARD_ATTR_DEVICE_IN_USE);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_DEVICE_SYSTEM_NAME", SCARD_ATTR_DEVICE_SYSTEM_NAME);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_DEVICE_UNIT", SCARD_ATTR_DEVICE_UNIT);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_ICC_INTERFACE_STATUS", SCARD_ATTR_ICC_INTERFACE_STATUS);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_ICC_PRESENCE", SCARD_ATTR_ICC_PRESENCE);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_ICC_TYPE_PER_ATR", SCARD_ATTR_ICC_TYPE_PER_ATR);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_MAX_CLK", SCARD_ATTR_MAX_CLK);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_MAX_DATA_RATE", SCARD_ATTR_MAX_DATA_RATE);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_MAX_IFSD", SCARD_ATTR_MAX_IFSD);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_POWER_MGMT_SUPPORT", SCARD_ATTR_POWER_MGMT_SUPPORT);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_PROTOCOL_TYPES", SCARD_ATTR_PROTOCOL_TYPES);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_VENDOR_IFD_SERIAL_NO", SCARD_ATTR_VENDOR_IFD_SERIAL_NO);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_VENDOR_IFD_TYPE", SCARD_ATTR_VENDOR_IFD_TYPE);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_VENDOR_IFD_VERSION", SCARD_ATTR_VENDOR_IFD_VERSION);
+	PyModule_AddIntConstant(m, "SCARD_ATTR_VENDOR_NAME", SCARD_ATTR_VENDOR_NAME);
 #endif
-  PyDict_SetItemString(d, "SCARD_ABSENT", PyInt_FromLong(SCARD_ABSENT));
-  PyDict_SetItemString(d, "SCARD_PRESENT", PyInt_FromLong(SCARD_PRESENT));
-  PyDict_SetItemString(d, "SCARD_SWALLOWED", PyInt_FromLong(SCARD_SWALLOWED));
-  PyDict_SetItemString(d, "SCARD_POWERED", PyInt_FromLong(SCARD_POWERED));
-  PyDict_SetItemString(d, "SCARD_NEGOTIABLE", PyInt_FromLong(SCARD_NEGOTIABLE));
-  PyDict_SetItemString(d, "SCARD_SPECIFIC", PyInt_FromLong(SCARD_SPECIFIC));
-#ifndef _WINDOWS_
-  // PCSC-lite specific
-  PyDict_SetItemString(d, "SCARD_PROTOCOL_ANY", PyInt_FromLong(SCARD_PROTOCOL_ANY));
+
+	PyModule_AddStringConstant(m, "PYCSC_PLATFORM_PCSCWINDOWS", PYCSC_PLATFORM_PCSCWINDOWS);
+	PyModule_AddStringConstant(m, "PYCSC_PLATFORM_PCSCLITE", PYCSC_PLATFORM_PCSCLITE);
+#ifdef WINDOWS
+	PyModule_AddStringConstant(m, "platform", PYCSC_PLATFORM_PCSCWINDOWS);
+#else	
+	PyModule_AddStringConstant(m, "platform", PYCSC_PLATFORM_PCSCLITE);
 #endif
-  PyDict_SetItemString(d, "SCARD_STATE_UNAWARE", PyInt_FromLong(SCARD_STATE_UNAWARE)); 
-  PyDict_SetItemString(d, "SCARD_STATE_IGNORE", PyInt_FromLong(SCARD_STATE_IGNORE)); 
-  PyDict_SetItemString(d, "SCARD_STATE_CHANGED", PyInt_FromLong(SCARD_STATE_CHANGED)); 
-  PyDict_SetItemString(d, "SCARD_STATE_UNKNOWN", PyInt_FromLong(SCARD_STATE_UNKNOWN)); 
-  PyDict_SetItemString(d, "SCARD_STATE_UNAVAILABLE", PyInt_FromLong(SCARD_STATE_UNAVAILABLE)); 
-  PyDict_SetItemString(d, "SCARD_STATE_EMPTY", PyInt_FromLong(SCARD_STATE_EMPTY)); 
-  PyDict_SetItemString(d, "SCARD_STATE_PRESENT", PyInt_FromLong(SCARD_STATE_PRESENT)); 
-  PyDict_SetItemString(d, "SCARD_STATE_ATRMATCH", PyInt_FromLong(SCARD_STATE_ATRMATCH)); 
-  PyDict_SetItemString(d, "SCARD_STATE_EXCLUSIVE", PyInt_FromLong(SCARD_STATE_EXCLUSIVE)); 
-  PyDict_SetItemString(d, "SCARD_STATE_INUSE", PyInt_FromLong(SCARD_STATE_INUSE)); 
-  PyDict_SetItemString(d, "SCARD_STATE_MUTE", PyInt_FromLong(SCARD_STATE_MUTE)); 
-  //+ Define the PycscException
-  PycscException = PyErr_NewException("pycsc.PycscException", NULL, NULL);
-  PyDict_SetItemString(d, "PycscException", PycscException);
+
+	//+ Define the PycscException
+	PycscException = PyErr_NewException("pycsc.PycscException", NULL, NULL);
+	PyModule_AddObject(m, "PycscException", PycscException);
 }
 
 /* Internal tool */
@@ -945,7 +1324,7 @@ static LONG getReaderList(SCARDCONTEXT hContext, LPSTR* pmszReaders, DWORD *pdwR
 {
   LPCSTR mszGroups = 0;
   LPSTR mszReaders = NULL;
-  LONG  dwReaders;
+  ULONG  dwReaders;
   LONG rv;
 
   /* Read size of reader list */
