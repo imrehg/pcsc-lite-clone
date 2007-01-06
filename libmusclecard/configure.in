@@ -36,7 +36,7 @@ dnl check library functions
 AC_FUNC_STAT
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS(closedir fgets strlen memcpy opendir)
-AC_CHECK_FUNCS(readdir sprintf strcmp strstr)
+AC_CHECK_FUNCS(readdir sprintf strcmp strstr snprintf)
 
 # check pcsc-lite version
 PKG_CHECK_MODULES(PCSCLITE, libpcsclite >= 1.2.9-beta7, [],
