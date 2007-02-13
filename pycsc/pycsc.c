@@ -39,12 +39,12 @@
 /* Internal tool */
 static LONG getReaderList(SCARDCONTEXT hContext, LPSTR* pmszReaders, 
                           DWORD *pdwReaders);
+static char *my_pcsc_stringify_error(LONG rv);
 
-#ifdef _WINDOWS_
-/* Windows does not provide the pcsc_stringify_error function */
+/* Windows does not provide the my_pcsc_stringify_error function */
 /*******************************************************************
  **
- **  Function    : pcsc_stringify_error 
+ **  Function    : my_pcsc_stringify_error 
  **
  **  Description : Converts the long type resultant values into the 
  **                readable string format.
@@ -53,25 +53,17 @@ static LONG getReaderList(SCARDCONTEXT hContext, LPSTR* pmszReaders,
  **
  *******************************************************************/
 char ErrorString[200];
-char *pcsc_stringify_error(LONG rv)
+char *my_pcsc_stringify_error(LONG rv)
 {
 	char strErrorCode[50];
 	switch(rv) 
 	{
+#ifdef WIN32
 		case ERROR_BROKEN_PIPE:
 			strcpy(strErrorCode, "ERROR_BROKEN_PIPE");
 			break;
 		case SCARD_E_BAD_SEEK:
 			strcpy(strErrorCode, "SCARD_E_BAD_SEEK");
-			break;
-		case SCARD_E_CANCELLED:
-			strcpy(strErrorCode, "SCARD_E_CANCELLED");
-			break;
-		case SCARD_E_CANT_DISPOSE:
-			strcpy(strErrorCode, "SCARD_E_CANT_DISPOSE");
-			break;
-		case SCARD_E_CARD_UNSUPPORTED:
-			strcpy(strErrorCode, "SCARD_E_CARD_UNSUPPORTED");
 			break;
 		case SCARD_E_CERTIFICATE_UNAVAILABLE:
 			strcpy(strErrorCode, "SCARD_E_CERTIFICATE_UNAVAILABLE");
@@ -82,9 +74,6 @@ char *pcsc_stringify_error(LONG rv)
 		case SCARD_E_DIR_NOT_FOUND:
 			strcpy(strErrorCode, "SCARD_E_DIR_NOT_FOUND");
 			break;
-		case SCARD_E_DUPLICATE_READER:
-			strcpy(strErrorCode, "SCARD_E_DUPLICATE_READER");
-			break;
 		case SCARD_E_FILE_NOT_FOUND:
 			strcpy(strErrorCode, "SCARD_E_FILE_NOT_FOUND");
 			break;
@@ -94,14 +83,60 @@ char *pcsc_stringify_error(LONG rv)
 		case SCARD_E_ICC_INSTALLATION:
 			strcpy(strErrorCode, "SCARD_E_ICC_INSTALLATION");
 			break;
+		case SCARD_E_INVALID_CHV:
+			strcpy(strErrorCode, "SCARD_E_INVALID_CHV");
+			break;
+		case SCARD_E_NO_SUCH_CERTIFICATE:
+			strcpy(strErrorCode, "SCARD_E_NO_SUCH_CERTIFICATE");
+			break;
+		case SCARD_E_NOT_READY:
+			strcpy(strErrorCode, "SCARD_E_NOT_READY");
+			break;
+		case SCARD_E_UNEXPECTED:
+			strcpy(strErrorCode, "SCARD_E_UNEXPECTED");
+			break;
+		case SCARD_E_UNKNOWN_RES_MNG:
+			strcpy(strErrorCode, "SCARD_E_UNKNOWN_RES_MNG");
+			break;
+		case SCARD_E_WRITE_TOO_MANY:
+			strcpy(strErrorCode, "SCARD_E_WRITE_TOO_MANY");
+			break;
+		case SCARD_P_SHUTDOWN:
+			strcpy(strErrorCode, "SCARD_P_SHUTDOWN");
+			break;
+		case SCARD_W_CANCELLED_BY_USER:
+			strcpy(strErrorCode, "SCARD_W_CANCELLED_BY_USER");
+			break;
+		case SCARD_W_CHV_BLOCKED:
+			strcpy(strErrorCode, "SCARD_W_CHV_BLOCKED");
+			break;
+		case SCARD_W_EOF:
+			strcpy(strErrorCode, "SCARD_W_EOF");
+			break;
+		case SCARD_W_SECURITY_VIOLATION:
+			strcpy(strErrorCode, "SCARD_W_SECURITY_VIOLATION");
+			break;
+		case SCARD_W_WRONG_CHV:
+			strcpy(strErrorCode, "SCARD_W_WRONG_CHV");
+			break;
+#endif
+		case SCARD_E_CANCELLED:
+			strcpy(strErrorCode, "SCARD_E_CANCELLED");
+			break;
+		case SCARD_E_CANT_DISPOSE:
+			strcpy(strErrorCode, "SCARD_E_CANT_DISPOSE");
+			break;
+		case SCARD_E_CARD_UNSUPPORTED:
+			strcpy(strErrorCode, "SCARD_E_CARD_UNSUPPORTED");
+			break;
+		case SCARD_E_DUPLICATE_READER:
+			strcpy(strErrorCode, "SCARD_E_DUPLICATE_READER");
+			break;
 		case SCARD_E_INSUFFICIENT_BUFFER:
 			strcpy(strErrorCode, "SCARD_E_INSUFFICIENT_BUFFER");
 			break;
 		case SCARD_E_INVALID_ATR:
 			strcpy(strErrorCode, "SCARD_E_INVALID_ATR");
-			break;
-		case SCARD_E_INVALID_CHV:
-			strcpy(strErrorCode, "SCARD_E_INVALID_CHV");
 			break;
 		case SCARD_E_INVALID_HANDLE:
 			strcpy(strErrorCode, "SCARD_E_INVALID_HANDLE");
@@ -115,17 +150,6 @@ char *pcsc_stringify_error(LONG rv)
 		case SCARD_E_INVALID_VALUE:
 			strcpy(strErrorCode, "SCARD_E_INVALID_VALUE");
 			break;
-		case SCARD_E_NO_ACCESS:
-			strcpy(strErrorCode, "SCARD_E_NO_ACCESS");
-			break;
-		case SCARD_E_NO_DIR:
-			strcpy(strErrorCode, "SCARD_E_NO_DIR");
-			break;
-		case SCARD_E_NO_FILE:
-			strcpy(strErrorCode, "SCARD_E_NO_FILE");
-		case SCARD_E_NOT_TRANSACTED:
-			strcpy(strErrorCode, "SCARD_E_NOT_TRANSACTED");
-			break;
 		case SCARD_E_NO_MEMORY:
 			strcpy(strErrorCode, "SCARD_E_NO_MEMORY");
 			break;
@@ -137,12 +161,6 @@ char *pcsc_stringify_error(LONG rv)
 			break;
 		case SCARD_E_NO_SMARTCARD:
 			strcpy(strErrorCode, "SCARD_E_NO_SMARTCARD");
-			break;
-		case SCARD_E_NO_SUCH_CERTIFICATE:
-			strcpy(strErrorCode, "SCARD_E_NO_SUCH_CERTIFICATE");
-			break;
-		case SCARD_E_NOT_READY:
-			strcpy(strErrorCode, "SCARD_E_NOT_READY");
 			break;
 		case SCARD_E_NOT_TRANSACTED:
 			strcpy(strErrorCode, "SCARD_E_NOT_TRANSACTED");
@@ -171,23 +189,14 @@ char *pcsc_stringify_error(LONG rv)
 		case SCARD_E_TIMEOUT:
 			strcpy(strErrorCode, "SCARD_E_TIMEOUT");
 			break;
-		case SCARD_E_UNEXPECTED:
-			strcpy(strErrorCode, "SCARD_E_UNEXPECTED");
-			break;
 		case SCARD_E_UNKNOWN_CARD:
 			strcpy(strErrorCode, "SCARD_E_UNKNOWN_CARD");
 			break;
 		case SCARD_E_UNKNOWN_READER:
 			strcpy(strErrorCode, "SCARD_E_UNKNOWN_READER");
 			break;
-		case SCARD_E_UNKNOWN_RES_MNG:
-			strcpy(strErrorCode, "SCARD_E_UNKNOWN_RES_MNG");
-			break;
 		case SCARD_E_UNSUPPORTED_FEATURE:
 			strcpy(strErrorCode, "SCARD_E_UNSUPPORTED_FEATURE");
-			break;
-		case SCARD_E_WRITE_TOO_MANY:
-			strcpy(strErrorCode, "SCARD_E_WRITE_TOO_MANY");
 			break;
 		case SCARD_F_COMM_ERROR:
 			strcpy(strErrorCode, "SCARD_F_COMM_ERROR");
@@ -201,29 +210,14 @@ char *pcsc_stringify_error(LONG rv)
 		case SCARD_F_WAITED_TOO_LONG:
 			strcpy(strErrorCode, "SCARD_F_WAITED_TOO_LONG");
 			break;
-		case SCARD_P_SHUTDOWN:
-			strcpy(strErrorCode, "SCARD_P_SHUTDOWN");
-			break;
 		case SCARD_S_SUCCESS:
 			strcpy(strErrorCode, "SCARD_S_SUCCESS");
-			break;
-		case SCARD_W_CANCELLED_BY_USER:
-			strcpy(strErrorCode, "SCARD_W_CANCELLED_BY_USER");
-			break;
-		case SCARD_W_CHV_BLOCKED:
-			strcpy(strErrorCode, "SCARD_W_CHV_BLOCKED");
-			break;
-		case SCARD_W_EOF:
-			strcpy(strErrorCode, "SCARD_W_EOF");
 			break;
 		case SCARD_W_REMOVED_CARD:
 			strcpy(strErrorCode, "SCARD_W_REMOVED_CARD");
 			break;
 		case SCARD_W_RESET_CARD:
 			strcpy(strErrorCode, "SCARD_W_RESET_CARD");
-			break;
-		case SCARD_W_SECURITY_VIOLATION:
-			strcpy(strErrorCode, "SCARD_W_SECURITY_VIOLATION");
 			break;
 		case SCARD_W_UNPOWERED_CARD:
 			strcpy(strErrorCode, "SCARD_W_UNPOWERED_CARD");
@@ -234,16 +228,17 @@ char *pcsc_stringify_error(LONG rv)
 		case SCARD_W_UNSUPPORTED_CARD:
 			strcpy(strErrorCode, "SCARD_W_UNSUPPORTED_CARD");
 			break;
-		case SCARD_W_WRONG_CHV:
-			strcpy(strErrorCode, "SCARD_W_WRONG_CHV");
-			break;
 		default:
 			strcpy(strErrorCode, "Unknown");
 	}
-    sprintf(ErrorString, "Error returned by PCSC: 0x%08X (%s)", rv, strErrorCode);
+#ifdef WIN32
+    sprintf(ErrorString, "%s (0x%08lX)", strErrorCode, rv);
+#else
+    sprintf(ErrorString, "%s %s (0x%08lX)", pcsc_stringify_error(rv),
+		strErrorCode, rv);
+#endif
     return ErrorString;
 }
-#endif
 
 /* define MAX_ATR_SIZE for all platforms */
 #ifndef MAX_ATR_SIZE
@@ -328,7 +323,7 @@ static PyObject * pycsc_reconnect( PyObject *self,  PyObject *args,  PyObject *k
 
   if ( rv != SCARD_S_SUCCESS )
     {
-      PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+      PyErr_SetString(PycscException, my_pcsc_stringify_error(rv));
       return NULL;
     }
 
@@ -357,7 +352,7 @@ static PyObject * pycsc_disconnect(PyObject *self, PyObject * args)
 
   if ( rv != SCARD_S_SUCCESS )
     {
-      PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+      PyErr_SetString(PycscException, my_pcsc_stringify_error(rv));
       return NULL;
     }
 #ifdef DEBUG
@@ -394,7 +389,7 @@ static PyObject * pycsc_status(PyObject *self, PyObject * args)
 
   if ( rv != SCARD_S_SUCCESS )
     {
-      PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+      PyErr_SetString(PycscException, my_pcsc_stringify_error(rv));
       return NULL;
     }
 
@@ -415,7 +410,7 @@ static PyObject * pycsc_status(PyObject *self, PyObject * args)
 
   if ( rv != SCARD_S_SUCCESS )
     {
-      PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+      PyErr_SetString(PycscException, my_pcsc_stringify_error(rv));
       PyMem_Free((void *)pcReaders);
       return NULL;
     }
@@ -473,7 +468,7 @@ static PyObject * pycsc_control(PyObject *self, PyObject * args)
 #endif
 	if ( rv != SCARD_S_SUCCESS )
 	{
-		PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+		PyErr_SetString(PycscException, my_pcsc_stringify_error(rv));
 		return NULL;
 	}
 
@@ -499,7 +494,7 @@ static PyObject * pycsc_getAttrib(PyObject *self, PyObject * args)
 	rv = SCardGetAttrib(object->hCard, attrId, (LPBYTE) &attrValue, &attrValueLen);
 	if ( rv != SCARD_S_SUCCESS )
 	{
-		PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+		PyErr_SetString(PycscException, my_pcsc_stringify_error(rv));
 		return NULL;
 	}
 
@@ -529,7 +524,7 @@ static PyObject * pycsc_setAttrib(PyObject *self, PyObject * args)
 	rv = SCardSetAttrib(object->hCard, attrId, attrValue, attrValueLen);
 	if ( rv != SCARD_S_SUCCESS )
 	{
-		PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+		PyErr_SetString(PycscException, my_pcsc_stringify_error(rv));
 		return NULL;
 	}
 	Py_INCREF(Py_None);
@@ -602,7 +597,7 @@ static PyObject * pycsc_transmit(PyObject *self, PyObject * args,
                      NULL, resparray, &resplength);
   if ( rv != SCARD_S_SUCCESS )
   {
-    PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+    PyErr_SetString(PycscException, my_pcsc_stringify_error(rv));
     return NULL;
   }
 
@@ -850,7 +845,7 @@ static PyObject * pycscobject_pycsc(PyObject *self, PyObject * args, PyObject *k
                   &hContext);
   if ( rv != SCARD_S_SUCCESS )
   {
-      PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+      PyErr_SetString(PycscException, my_pcsc_stringify_error(rv));
       return NULL;
   }
 
@@ -879,7 +874,7 @@ static PyObject * pycscobject_pycsc(PyObject *self, PyObject * args, PyObject *k
     if ( rv != SCARD_S_SUCCESS )
     {
       SCardReleaseContext( hContext );
-      PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+      PyErr_SetString(PycscException, my_pcsc_stringify_error(rv));
       return NULL;
     }
   }
@@ -898,7 +893,7 @@ static PyObject * pycscobject_pycsc(PyObject *self, PyObject * args, PyObject *k
   if ( rv != SCARD_S_SUCCESS )
   {
     SCardReleaseContext( hContext );
-    PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+    PyErr_SetString(PycscException, my_pcsc_stringify_error(rv));
     return NULL;
   }
 
@@ -949,14 +944,14 @@ static PyObject * pycscobject_listReader(PyObject *self, PyObject * args)
                               &hContext);
   if ( rv != SCARD_S_SUCCESS )
   {
-    PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+    PyErr_SetString(PycscException, my_pcsc_stringify_error(rv));
     return NULL;
   }
   rv = getReaderList(hContext, &mszReaders,  &dwReaders);
 
   if ( rv != SCARD_S_SUCCESS )
   {
-    PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+    PyErr_SetString(PycscException, my_pcsc_stringify_error(rv));
     return NULL;
   }
   // Build output from mszReaders
@@ -1138,7 +1133,7 @@ static PyObject * pycscobject_getStatusChange(PyObject *self, PyObject * args,  
           PyMem_Free((void *)pstReaderStates[i].szReader);
       }
       PyMem_Free((void *)pstReaderStates);
-      PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+      PyErr_SetString(PycscException, my_pcsc_stringify_error(rv));
       return NULL;
   }
 
@@ -1153,7 +1148,7 @@ static PyObject * pycscobject_getStatusChange(PyObject *self, PyObject * args,  
           PyMem_Free((void *)pstReaderStates[i].szReader);
       }
       PyMem_Free((void *)pstReaderStates);
-      PyErr_SetString(PycscException, pcsc_stringify_error(rv));
+      PyErr_SetString(PycscException, my_pcsc_stringify_error(rv));
       return NULL;
   }
   
