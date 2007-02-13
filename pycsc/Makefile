@@ -6,7 +6,7 @@ ifeq (, $(PYTHONVER))
 endif
 PYTHON=python$(PYTHONVER)
 
-build:
+build: pycsc.c
 	$(PYTHON) setup.py build
 
 install: build
