@@ -1,3 +1,11 @@
-README
+CHANGELOG
+COPYING
+examples/example2.py
+examples/example_lowlevel.py
+INSTALL
+Makefile
 pycsc.c
+PyCSC/__init__.py
+README
 setup.py
+TODO
