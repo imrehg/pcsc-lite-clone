@@ -153,9 +153,11 @@ char *my_pcsc_stringify_error(LONG rv)
 		case SCARD_E_NO_MEMORY:
 			strcpy(strErrorCode, "SCARD_E_NO_MEMORY");
 			break;
+#ifdef SCARD_E_NO_READERS_AVAILABLE
 		case SCARD_E_NO_READERS_AVAILABLE:
 			strcpy(strErrorCode, "SCARD_E_NO_READERS_AVAILABLE");
 			break;
+#endif
 		case SCARD_E_NO_SERVICE:
 			strcpy(strErrorCode, "SCARD_E_NO_SERVICE");
 			break;
