@@ -177,11 +177,11 @@ class PyCSCLib:
 
         @param reader: reader name ("" by default)
         @type reader: string
-        @param mode: can be L{SCARD_SHARE_SHARED},
+        @param mode: can be L{SCARD_SHARE_SHARED} (default),
         L{SCARD_SHARE_EXCLUSIVE} or L{SCARD_SHARE_DIRECT}
         @type mode: integer
         @param protocol: can be L{SCARD_PROTOCOL_T0},
-        L{SCARD_PROTOCOL_T1}, L{SCARD_PROTOCOL_ANY},
+        L{SCARD_PROTOCOL_T1}, L{SCARD_PROTOCOL_ANY} (default),
         L{SCARD_PROTOCOL_RAW}
         @type protocol: integer
         @return: a L{Card} object
