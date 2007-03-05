@@ -36,7 +36,7 @@ class Card:
     def __init__(self, reader, mode, protocol):
         self.pycsc = PyCSC.pycsc.pycsc(reader = reader, mode = mode, protocol = protocol)
         self.readerName = self.pycsc.status()["ReaderName"]
-        self.atr = binascii.b2a_hex(self.pycsc.status()["ATR"])
+        self.atr = binascii.b2a_hex(self.pycsc.status()["ATR"]).upper()
 
     def transmit(self, apdu):
         """
@@ -50,7 +50,7 @@ class Card:
         @rtype: list of strings
         """
         resp = self.pycsc.transmit(binascii.a2b_hex(apdu))
-        resp = binascii.b2a_hex(resp)
+        resp = binascii.b2a_hex(resp).upper()
         # split result and SW
         return (resp[:-4], resp[-4:])
 
