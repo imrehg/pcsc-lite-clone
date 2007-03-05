@@ -477,6 +477,13 @@ static PyObject * pycsc_control(PyObject *self, PyObject * args)
 	return Py_BuildValue("s#", outBuffer, outBufferLen);
 }
 
+/******************************************************************
+ **
+ **  Function    : pycsc_getAttrib
+ **
+ **  Description : get a card/driver attribute
+ **
+ ******************************************************************/
 static PyObject * pycsc_getAttrib(PyObject *self, PyObject * args)
 {
 //+ NEED TO CHECK IF IT REALLY DOES NOT EXIST ON PCSC/LITE
@@ -511,6 +518,13 @@ static PyObject * pycsc_getAttrib(PyObject *self, PyObject * args)
 #endif
 }
 
+/******************************************************************
+ **
+ **  Function    : pycsc_setAttrib
+ **
+ **  Description : set a card/driver attribute
+ **
+ ******************************************************************/
 static PyObject * pycsc_setAttrib(PyObject *self, PyObject * args)
 {
 #ifdef WINDOWS
