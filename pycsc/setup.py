@@ -1,6 +1,9 @@
 #! /usr/bin/env python
+try:
+  from setuptools import setup, Extension
+except ImportError:
+  from distutils.core import setup, Extension
 
-from distutils.core import setup, Extension
 import sys
 import os 
 
