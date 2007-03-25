@@ -36,8 +36,12 @@ On Mac OS X:
 - to install:
         $ sudo python setup_MacOSX.py install
 
-On Mac OS X:
+On Windows:
 - to build and install:
         $ python setup_Win32.py install
+
+
+The project is available from http://www.python.org/pypi/PyCSC and can
+be installed using "easy_install PyCSC"
 
 See example.py for details on how to use pycsc.
