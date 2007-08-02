@@ -982,16 +982,17 @@ static PyObject * pycscobject_listReader(PyObject *self, PyObject * args)
   mszReadersScan = mszReaders;
   while (*mszReadersScan != '\0')
   {
-    //+ Does that free memomry properly in case of error with the append
-    //+ probably Py_BuildValue("s", mszReadersScan) needs a DECREF
-    //+ and so does ret_value
-    if (PyList_Append(ret_value, Py_BuildValue("s", mszReadersScan)))
+    PyObject *tmp = Py_BuildValue("s", mszReadersScan);
+    if (PyList_Append(ret_value, tmp))
     {
       PyErr_SetString(PycscException, "Could not append reader name");
       SCardReleaseContext(hContext);  
       PyMem_Free((void *)mszReaders);
+      Py_CLEAR(tmp);
+      Py_CLEAR(ret_value);
       return NULL;
     }      
+    Py_DECREF(tmp);
     mszReadersScan += strlen(mszReadersScan)+1;
   }
   SCardReleaseContext(hContext);  
