@@ -42,7 +42,7 @@
 #define MSC_LIBRMSC_KEY_NAME                "CFBundleExecutable"
 #define MSC_DEFAULTAPP_NAME                 "spDefaultApplication"
 
-int atrToString(MSCPUChar8 Atr, MSCULong32 Length, char *outAtr)
+static int atrToString(MSCPUChar8 Atr, MSCULong32 Length, char *outAtr)
 {
 	MSCULong32 i;
 	MSCULong32 j;
@@ -78,7 +78,7 @@ int atrToString(MSCPUChar8 Atr, MSCULong32 Length, char *outAtr)
 	return 0;
 }
 
-int stringToBytes(char *inStr, MSCPUChar8 Buffer, MSCPULong32 Length)
+static int stringToBytes(char *inStr, MSCPUChar8 Buffer, MSCPULong32 Length)
 {
 	int i;
 	int j;
