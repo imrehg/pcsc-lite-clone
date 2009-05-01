@@ -70,11 +70,11 @@ static void mscUnLockThread(void)
 #pragma fini (musclecard_init)
 #endif
 
-void CONSTRUCTOR musclecard_init(void)
+static void CONSTRUCTOR musclecard_init(void)
 {
 }
 
-void DESTRUCTOR musclecard_fini(void)
+static void DESTRUCTOR musclecard_fini(void)
 {
 	if (localHContext != 0)
 		SCardReleaseContext(localHContext);
@@ -752,7 +752,7 @@ MSC_RV MSCCancelEventWait(void)
 
 /************************ Start of Callbacks ****************************/
 #ifdef USE_THREAD_SAFETY
-void *_MSCEventThread(void *arg)
+static void *_MSCEventThread(void *arg)
 {
 	MSCLong32 rv;
 	MSCLPEventWaitInfo evlist;
