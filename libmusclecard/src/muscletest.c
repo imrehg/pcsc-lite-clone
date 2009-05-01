@@ -13,9 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "pcsclite.h"
 #include "winscard.h"
-#include "mscdefines.h"
 #include "musclecard.h"
 #include "strlcpycat.h"
 
