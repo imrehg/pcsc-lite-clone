@@ -854,28 +854,28 @@ extern "C"
 
 	PCSC_API
 	MSC_RV MSCCreateObject(MSCLPTokenConnection pConnection,
-		MSCString objectID,
+		MSCCString objectID,
 		MSCULong32 objectSize, MSCLPObjectACL pObjectACL);
 
 	PCSC_API
 	MSC_RV MSCDeleteObject(MSCLPTokenConnection pConnection,
-		MSCString objectID, MSCUChar8 zeroFlag);
+		MSCCString objectID, MSCUChar8 zeroFlag);
 
 	PCSC_API
 	MSC_RV MSCWriteObject(MSCLPTokenConnection pConnection,
-		MSCString objectID, MSCULong32 offset, 
+		MSCCString objectID, MSCULong32 offset, 
 		MSCPUChar8 pInputData, MSCULong32 dataSize,
 		LPRWEventCallback rwCallback, MSCPVoid32 addParams);
 
 	PCSC_API
 	MSC_RV MSCReadObject(MSCLPTokenConnection pConnection,
-		MSCString objectID, MSCULong32 offset, 
+		MSCCString objectID, MSCULong32 offset, 
                 MSCPUChar8 pOutputData, MSCULong32 dataSize,
 		LPRWEventCallback rwCallback, MSCPVoid32 addParams);
 
 	PCSC_API
 	MSC_RV MSCReadAllocateObject(MSCLPTokenConnection pConnection,
-		MSCString objectID, MSCPUChar8 *pOutputData, 
+		MSCCString objectID, MSCPUChar8 *pOutputData, 
                 MSCPULong32 dataSize,
                 LPRWEventCallback rwCallback, MSCPVoid32 addParams);
 
@@ -911,7 +911,7 @@ extern "C"
 
 	PCSC_API
 	MSC_RV MSCGetObjectAttributes(MSCLPTokenConnection pConnection,
-				      MSCString objectID, 
+				      MSCCString objectID, 
 				      MSCLPObjectInfo pObjectInfo);
 
 	PCSC_API
