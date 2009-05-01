@@ -41,8 +41,8 @@ muscletest_SOURCES = \
 	muscletest.c \
 	strlcpy.c
 muscletest_CFLAGS = \
-	$(PCSCLITE_CFLAGS) \
-	-I$(top_srcdir)/src/PCSC
+	-I$(top_srcdir)/src/PCSC \
+	$(PCSCLITE_CFLAGS)
 muscletest_LDADD = \
 	libmusclecard.la
 
