@@ -5,7 +5,7 @@ EXTRA_DIST = ChangeLog.svn reconf
 SUBDIRS = doc src utils m4
 
 ChangeLog.svn:
-	-svn2cl.sh --group-by-day --stdout --include-rev | perl -pe \
+	-svn2cl --group-by-day --stdout --include-rev | perl -pe \
 	's/  corcoran-guest/  David Corcoran/; \
 	s/  corcoran/  David Corcoran/; \
 	s/  aet-guest/  Antti Tapaninen/; \
