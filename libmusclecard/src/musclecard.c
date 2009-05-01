@@ -1382,12 +1382,12 @@ MSC_RV MSCListPINs(MSCLPTokenConnection pConnection, MSCPUShort16 pPinBitMask)
 }
 
 MSC_RV MSCCreateObject(MSCLPTokenConnection pConnection,
-	MSCString objectID, MSCULong32 objectSize, MSCLPObjectACL pObjectACL)
+	MSCCString objectID, MSCULong32 objectSize, MSCLPObjectACL pObjectACL)
 {
 	MSCLong32 rv;
 	MSCPVoid32 vFunction;
 
-	MSCLong32(*libMSCCreateObject) (MSCLPTokenConnection, MSCString,
+	MSCLong32(*libMSCCreateObject) (MSCLPTokenConnection, MSCCString,
 		MSCULong32, MSCLPObjectACL);
 
 	if (pConnection == NULL)
@@ -1399,7 +1399,7 @@ MSC_RV MSCCreateObject(MSCLPTokenConnection pConnection,
 
 	if (vFunction != NULL)
 	{
-		libMSCCreateObject = (MSCLong32(*)(MSCLPTokenConnection, MSCString,
+		libMSCCreateObject = (MSCLong32(*)(MSCLPTokenConnection, MSCCString,
 				MSCULong32, MSCLPObjectACL)) vFunction;
 		rv = (*libMSCCreateObject) (pConnection, objectID, objectSize,
 			pObjectACL);
@@ -1411,12 +1411,12 @@ MSC_RV MSCCreateObject(MSCLPTokenConnection pConnection,
 }
 
 MSC_RV MSCDeleteObject(MSCLPTokenConnection pConnection,
-	MSCString objectID, MSCUChar8 zeroFlag)
+	MSCCString objectID, MSCUChar8 zeroFlag)
 {
 	MSCLong32 rv;
 	MSCPVoid32 vFunction;
 
-	MSCLong32(*libMSCDeleteObject) (MSCLPTokenConnection, MSCString,
+	MSCLong32(*libMSCDeleteObject) (MSCLPTokenConnection, MSCCString,
 		MSCUChar8);
 
 	if (pConnection == NULL)
@@ -1428,7 +1428,7 @@ MSC_RV MSCDeleteObject(MSCLPTokenConnection pConnection,
 
 	if (vFunction != NULL)
 	{
-		libMSCDeleteObject = (MSCLong32(*)(MSCLPTokenConnection, MSCString,
+		libMSCDeleteObject = (MSCLong32(*)(MSCLPTokenConnection, MSCCString,
 				MSCUChar8)) vFunction;
 		rv = (*libMSCDeleteObject) (pConnection, objectID, zeroFlag);
 	}
@@ -1439,7 +1439,7 @@ MSC_RV MSCDeleteObject(MSCLPTokenConnection pConnection,
 }
 
 MSC_RV MSCWriteObject(MSCLPTokenConnection pConnection,
-	MSCString objectID, MSCULong32 offSet,
+	MSCCString objectID, MSCULong32 offSet,
 	MSCPUChar8 pInputData, MSCULong32 dataSize,
 	LPRWEventCallback rwCallback, MSCPVoid32 addParams)
 {
@@ -1450,7 +1450,7 @@ MSC_RV MSCWriteObject(MSCLPTokenConnection pConnection,
 	MSC_RV(*callBackFunction) (void *, int);
 	MSCPVoid32 vFunction;
 
-	MSCLong32(*libMSCWriteObject) (MSCLPTokenConnection, MSCString,
+	MSCLong32(*libMSCWriteObject) (MSCLPTokenConnection, MSCCString,
 		MSCULong32, MSCPUChar8, MSCUChar8);
 	int i;
 
@@ -1466,7 +1466,7 @@ MSC_RV MSCWriteObject(MSCLPTokenConnection pConnection,
 	if (vFunction == NULL)
 		return MSC_UNSUPPORTED_FEATURE;
 
-	libMSCWriteObject = (MSCLong32(*)(MSCLPTokenConnection, MSCString,
+	libMSCWriteObject = (MSCLong32(*)(MSCLPTokenConnection, MSCCString,
 			MSCULong32, MSCPUChar8, MSCUChar8)) vFunction;
 
 	/*
@@ -1511,7 +1511,7 @@ MSC_RV MSCWriteObject(MSCLPTokenConnection pConnection,
 }
 
 MSC_RV MSCReadObject(MSCLPTokenConnection pConnection,
-	MSCString objectID, MSCULong32 offSet,
+	MSCCString objectID, MSCULong32 offSet,
 	MSCPUChar8 pOutputData, MSCULong32 dataSize,
 	LPRWEventCallback rwCallback, MSCPVoid32 addParams)
 {
@@ -1522,7 +1522,7 @@ MSC_RV MSCReadObject(MSCLPTokenConnection pConnection,
 	MSC_RV(*callBackFunction) (void *, int);
 	MSCPVoid32 vFunction;
 
-	MSCLong32(*libMSCReadObject) (MSCLPTokenConnection, MSCString,
+	MSCLong32(*libMSCReadObject) (MSCLPTokenConnection, MSCCString,
 		MSCULong32, MSCPUChar8, MSCUChar8);
 	int i;
 
@@ -1539,7 +1539,7 @@ MSC_RV MSCReadObject(MSCLPTokenConnection pConnection,
 		return MSC_UNSUPPORTED_FEATURE;
 
 	libMSCReadObject = (MSCLong32(*)(MSCLPTokenConnection,
-			MSCString, MSCULong32, MSCPUChar8, MSCUChar8)) vFunction;
+			MSCCString, MSCULong32, MSCPUChar8, MSCUChar8)) vFunction;
 
 	/*
 	 * Figure out the number of steps total and present this in a percent
@@ -1732,7 +1732,7 @@ MSC_RV MSCGetKeyAttributes(MSCLPTokenConnection pConnection,
 }
 
 MSC_RV MSCGetObjectAttributes(MSCLPTokenConnection pConnection,
-	MSCString objectID, MSCLPObjectInfo pObjectInfo)
+	MSCCString objectID, MSCLPObjectInfo pObjectInfo)
 {
 	MSC_RV rv;
 	MSCObjectInfo objInfo;
@@ -1789,7 +1789,7 @@ MSC_RV MSCGetObjectAttributes(MSCLPTokenConnection pConnection,
 }
 
 MSC_RV MSCReadAllocateObject(MSCLPTokenConnection pConnection,
-	MSCString objectID, MSCPUChar8 * pOutputData,
+	MSCCString objectID, MSCPUChar8 * pOutputData,
 	MSCPULong32 dataSize, LPRWEventCallback rwCallback, MSCPVoid32 addParams)
 {
     MSC_RV rv;
