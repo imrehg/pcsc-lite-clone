@@ -25,8 +25,12 @@
 #include <fcntl.h>
 #include <stdlib.h>
 
-#include "pcsclite.h"
-#include "winscard.h"
+#ifdef __APPLE__
+#include <PCSC/winscard.h>
+#include <PCSC/wintypes.h>
+#else
+#include <winscard.h>
+#endif
 
 /*
  * The following defines personalize this for different tokens 
