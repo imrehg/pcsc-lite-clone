@@ -40,13 +40,17 @@ AC_CHECK_FUNCS(closedir fgets strlen memcpy opendir)
 AC_CHECK_FUNCS(readdir sprintf strcmp strstr snprintf)
 
 # check pcsc-lite version
-PKG_CHECK_MODULES(PCSCLITE, libpcsclite >= 1.2.9-beta7, [],
-	[ if test -f $prefix/lib/pkgconfig/libpcsclite.pc ; then
-		AC_MSG_ERROR([install pkg-config or set PKG_CONFIG_PATH to pkgconfig directory])
-	  else
-		AC_MSG_WARN([install pcsc-lite 1.2.9-beta7 or later])
-	  fi
-	])
+PCSC_NEEDED_VERSION="1.2.9-beta7"
+PKG_CHECK_EXISTS([libpcsclite],
+	PKG_CHECK_MODULES(PCSCLITE, libpcsclite >= $PCSC_NEEDED_VERSION, [],
+		[ if test -f $prefix/lib/pkgconfig/libpcsclite.pc ; then
+			AC_MSG_ERROR([install pkg-config or set PKG_CONFIG_PATH to pkgconfig directory])
+		  else
+			AC_MSG_WARN([install pcsc-lite $PCSC_NEEDED_VERSION or later])
+		  fi
+		]),
+	[AC_MSG_WARN([libpcsclite not found by pkg-config])]
+)
 OLD_CPPFLAGS="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS $PCSCLITE_CFLAGS"
 AC_CHECK_HEADER(winscard.h, [],
